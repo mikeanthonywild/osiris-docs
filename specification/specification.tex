@@ -19,15 +19,15 @@
 
 The aim of this project is to design a sensor-agnostic interface which can be used to connect any image sensor to any processing board, thus providing a truly modular and upgradeable camera system.
 
-Modern cameras (both still-motion and video) have a multitude of upgrade options: lenses, filters and other accessories are all interchangeable, enabling creative freedom and flexibility. As one of the most important components of the system, the photographic sensor plays a vital role in the final image. It dictates not only the output resolution, but also low-light performance, colour response, frame-rate and cropping. 
+Modern cameras (both still-motion and video) have a multitude of upgrade options: lenses, filters and other accessories are all interchangeable, enabling creative freedom and flexibility. As one of the most important components of the system, the photographic sensor plays a vital role in the final image. It dictates not only the output resolution, but also noise, colour response, field-of-view, depth-of-field, frame-rate and cropping. 
 
-In spite of its significance, only a handful of niche cinema cameras include interchangeable sensors; even then, these components are not fully modular. Upgrading the sensor in a mainstream camera requires the purchase of an entirely new system.
+In spite of its significance, only a handful of niche cinema cameras include interchangeable sensors; even then, they are only compatible with first-party sensors. Upgrading the sensor in a mainstream camera requires the purchase of an entirely new system.
 
 This project seeks to provide a solid base for continued work on a fully-modular digital camera system with applications in cinema, photography and computer vision.
 
 \section{Methodology}
 
-This project will be conducted in three discrete stages. Initially the focus will be on interfacing with a simple low-resolution sensor module to obtain a single frame of video, providing a solid base for the slave side of the sensor-mainboard link. Next, a connection will be established to transfer image data between the sensor module (slave) and the mainboard (master). Contextual information gleaned from the first stage will be used to design this interface, which should support VGA-resolution image data @ 24 FPS from any sensor. Finally, the image data should be saved to some storage medium (SD card or SSD) for computer analysis / production use.
+This project will be conducted in four discrete stages. Initially the focus will be on interfacing with a simple low-resolution sensor module to obtain a single frame of video, providing a solid base for the slave side of the sensor-mainboard link. Next, a connection will be established to transfer image data between the sensor module (slave) and the mainboard (master). Contextual information gleaned from the first stage will be used to design this interface, which should ideally support 1080p resolution images at 24 FPS. Once image data can be transfered successfully, the slave will be replaced with a test pattern generator and tuned to achieve a useful maximum interface bandwidth. To determine the maximum bandwidth, multiple test patterns of increasing resolution / frame-rate / pixel depth will be transmitted through the interface. Bit-error-rate, memory throughput and various other metrics will be used to determine the maximum bandwidth figure. Finally, the image data should be saved to some storage medium (SD card or SSD) for computer analysis / production use.
 
 Once the system successfully works with a simple low-resolution sensor, the system can be modified to support higher-end sensors, time-permitting.
 
@@ -36,7 +36,8 @@ Once the system successfully works with a simple low-resolution sensor, the syst
 \begin{itemize}
     \item Design prototype camera with simple sensor module
     \item Sensor-agnostic interface and image acquisition pipeline
-    \item Support fixed image resolution and frame rate (VGA/24)
+    \item Support multiple resolutions and frame rates
+    \item Test maximum bandwidth with test pattern generator
     \item Storage through either external HDMI recorder or flash
     \item Video playback on host computer
 \end{itemize}
@@ -69,6 +70,7 @@ Once the system successfully works with a simple low-resolution sensor, the syst
         \item Pick appropriate mainboard FPGA / microprocessor combo
         \item Design and fabricate any interposer boards to connect sensor module (sensor + intermediary FPGA) and mainboard (acquisition FPGA + microprocessor)
         \item Write interface blocks for master and slave and clock data into memory
+        \item Use test pattern generator to measure maximum interface bandwidth
         \item Build custom Linux kernel for microprocessor
         \item Access framebuffer from Linux and save to storage medium
         \item Write final report and presentation
@@ -93,7 +95,7 @@ Once the system successfully works with a simple low-resolution sensor, the syst
 
 \section{Required Facilities}
 
-EDA software and soldering equipment will be required for the design and manufacture of a custom image sensor PCB as well as test equipment for analysing data buses. Additionally, use of 3D printing / laser cutting will be required in the later stages of the project to produce a protective housing for the sensor and ensure precise lens alignment.
+EDA software and soldering equipment will be required for the design and manufacture of a custom image sensor PCB and / or interposer boards, as well as test equipment for analysing data buses. Additionally, use of 3D printing / laser cutting will be required in the later stages of the project to produce a protective housing for the sensor and ensure precise lens alignment.
 
 \begin{figure}
 \centering
