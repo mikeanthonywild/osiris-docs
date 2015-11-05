@@ -17,7 +17,7 @@
 
 \section{Overview}
 
-The aim of this project is to design a sensor-agnostic interface which can be used to connect any image sensor to any processing board, thus providing a truly modular and upgradeable camera system.
+The aim of this project is to design a sensor-agnostic interface which can be used to connect any image sensor to any processing board, thus providing a truly modular and upgradable camera system.
 
 Modern cameras (both still-motion and video) have a multitude of upgrade options: lenses, filters and other accessories are all interchangeable, enabling creative freedom and flexibility. As one of the most important components of the system, the photographic sensor plays a vital role in the final image. It dictates not only the output resolution, but also noise, colour response, field-of-view, depth-of-field, frame-rate and cropping. 
 
@@ -27,7 +27,7 @@ This project seeks to provide a solid base for continued work on a fully-modular
 
 \section{Methodology}
 
-This project will be conducted in four discrete stages. Initially the focus will be on interfacing with a simple low-resolution sensor module to obtain a single frame of video, providing a solid base for the slave side of the sensor-mainboard link. Next, a connection will be established to transfer image data between the sensor module (slave) and the mainboard (master). Contextual information gleaned from the first stage will be used to design this interface, which should ideally support 1080p resolution images at 24 FPS. Once image data can be transfered successfully, the slave will be replaced with a test pattern generator and tuned to achieve a useful maximum interface bandwidth. To determine the maximum bandwidth, multiple test patterns of increasing resolution / frame-rate / pixel depth will be transmitted through the interface. Bit-error-rate, memory throughput and various other metrics will be used to determine the maximum bandwidth figure. Finally, the image data should be saved to some storage medium (SD card or SSD) for computer analysis / production use.
+This project will be conducted in four discrete stages. Initially the focus will be on interfacing with a simple low-resolution sensor module to obtain a single frame of video, providing a solid base for the slave side of the sensor-mainboard link. Next, a connection will be established to transfer image data between the sensor module (slave) and the mainboard (master). Contextual information gleaned from the first stage will be used to design this interface, which should ideally support 1080p resolution images at 24 FPS. Once image data can be transferred successfully, the slave will be replaced with a test pattern generator and tuned to achieve a useful maximum interface bandwidth. To determine the maximum bandwidth, multiple test patterns of increasing resolution / frame-rate / pixel depth will be transmitted through the interface. Bit-error-rate, memory throughput and various other metrics will be used to determine the maximum bandwidth figure. Finally, the image data should be saved to some storage medium (SD card or SSD) for computer analysis / production use.
 
 Once the system successfully works with a simple low-resolution sensor, the system can be modified to support higher-end sensors, time-permitting.
 
