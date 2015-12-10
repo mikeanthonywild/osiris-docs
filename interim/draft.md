@@ -20,14 +20,15 @@ This paper details an FPGA-based sensor-agnostic interface which can be used to 
 - Increased sensor size = higher quality images - same thing for film
 - Graph of notable camera system resolutions?
 
-Modern cameras can trace their humble beginnings back to the discovery of the camera-obscura – an optical trick used by artists in the 1200s to explode an image and project it against a wall so that they may use it as a reference for painting. Surprisingly it took another [x]hundred years for it to evolve into something more closely [what's the word I'm looking for?] the cameras we know today. In [1850], [such and such] discovered that when treated with [silver chloride], exposing a piece of paper to light would cause a colour change from [white to black]. After further experimentation, [xxxx] found that the longer the paper was exposed to light, the darker it got. It only took a [few more years] until a man by the name of [blah blah blah] realised that images could be captured by focusing light onto the photosensitive paper using a lens.
+Modern cameras can trace their humble beginnings back to the camera obscura first described by ancient Chinese philosopher Mozi, an optical trick used to pass light from an external scene through a hole and project it on a surface [http://www.sennhs.org/ourpages/auto/2013/4/1/41446028/The%20Birth%20of%20Cameras.pdf]. In around 1816, French inventor Nicéphore Niépce managed to capture the first camera images using paper treated with silver chloride [Stokstad, Marilyn; David Cateforis; Stephen Addiss (2005). Art History (Second ed.). Upper Saddle River, New Jersey: Pearson Education. p. 964. ISBN 0-13-145527-3.]. Continuing his work, Niépce's partner Louis Daguerre developed the first conventional camera using a simple lens to focus light onto a silver-coated copper plate [http://preserve.harvard.edu/daguerreotypes/].
 
-[Camera diagram]
-[Explain camera]
+![Camera diagram](camera_physics_diagram.png)
 
-After the invention of the first transistor at Bell Laboratories in 1947[reference from cmos paper 2], electronics could be dramatically reduced in size through the use of integrated circuits, paving the way for the start of the digital era. [Talk about first digital camera]
+[Figure x] illustrates a very basic camera. Light from an external scene is passed through a lens and focussed through an aperture hole where it is inversely projected onto a photosensitive surface for capture. The focal length dictates the distance between the optical centre of the lens and the sensor when the lens is focused to infinity [http://martybugs.net/blog/blog.cgi/learning/Field-Of-View-And-More.html]. A shutter mechanism behind the aperture is used to control how much light hits the surface of the sensor, thus exposing the image. There are multiple ways to increase image exposure: expanding the aperture, holding the shutter open for longer, or increasing the ISO sensitivity of the sensor. Conversely, narrower apertures, shorter exposure times and lower sensitivities all decease the amount of light that hits the sensor, resulting in a darker image. 
 
-Many different camera formats exist; one of the key differentiators being the area of the image sensor. A larger sensor can capture more light and thus the dynamic range is greatly increased, resulting in higher image quality[reference]. This is true of both digital sensors, and their film counterparts. 
+Following the invention of the first transistor at Bell Laboratories in 1947[http://www.computerhistory.org/semiconductor/timeline/1947-invention.html], electronic devices could be dramatically reduced in size through the use of integrated circuits, paving the way for the start of the digital era. The first self-contained digital camera was developed by Steve Sasson of Eastman Kodak in 1975. Instead of using film, Sasson focused the light onto a state-of-the-art digital image sensor based on the first charge-coupled device (CCD) invented by Bell Laboratories scientists Willard Boyce and George Smith [http://www.nobelprize.org/nobel_prizes/physics/laureates/2009/popular-physicsprize2009.pdf]), the output of which was saved to a tape cassette for later viewing on a TV [https://web.archive.org/web/20130121194248/http://pluggedin.kodak.com/pluggedin/post/?id=687843].
+
+Today, there are many different camera formats available – one of the key differentiators being the area of the image sensor. A larger sensor can capture more light and thus the dynamic range is greatly increased, resulting in higher image quality [http://white.stanford.edu/~brian/papers/pdc/pixelSize_SPIE00.pdf]. This is true of both digital sensors, and their film counterparts. 
 
 ## Motivation
 
@@ -76,9 +77,34 @@ Name            Parent      Family      Bandwidth   Scheme      Complexity
 USB3 Vision     USB 3       USB         2.8 Gbps    Serial      High
 GigE Vision     IP/UDP      Ethernet    800 Mbps    Serial      Medium    
 Camera Link     N/A         Camera Link 6.8 Gbps    Serial      Medium
-MIPI CSI-3      M-PHY       MIPI        23.2 Gbsps  Serial      Medium
+MIPI CSI-3      M-PHY       MIPI        23.2 Gbps   Serial      Medium
 HDMI 2.0        N/A         HDMI        18 Gbps     Serial      Low / Medium 
 
 [http://www.controlvision.co.nz/newsletters/2013/08/Basler_Interface_Comparsion.pdf http://www.arrowdevices.com/blog/mipi-csi-3-a-game-changer-for-future-camera-technology/ http://www.hdmi.org/manufacturer/hdmi_2_0/hdmi_2_0_faq.aspx]
+
+## Project testing platform
+
+- Designing a full camera is too much, but project should still be tested with real-world image data in realtime
+- Establish a successful link between image sensor and image processor
+- Heavy emphasis on testing. Test:
+    + Reliability (signal integrity, bit error rate = image integrity)
+    + Scalability - must work across range of resolutions and framerates
+    + Max throughput - ensure it's suitable for real-world applications!
+
+The design of a full camera system is beyond the scope of this project, however an image sensor produced by OmniVision is used to capture real-world image data, providing a realistic test environment. FPGAs are used extensively to set up a reconfigurable interface between the sensor and processor sides of the link, as well as generate test patterns for synthetic throughput and reliability tests. Given the main requirement of a sensor-agnostic interface is to work with a large range of sensors, there is a heavy emphasis on evaluating the system performance across several key metrics:
+
+- Reliability – preserving signal integrity and ensuring low bit error rates for a stable and trustworthy system.
+- Scalability – transferring data across a wide range of resolutions and framerates to maintain a high level of expandability.
+- Maximum throughput – ensuring that the sensor interface does not bottleneck the system.
+
+### Introduction to test system architecture
+
+- 
+
+The test system detailed in [figure x] is based around Xilinx's Zynq platform 
+
+![Block diagram overview](block_diagram_overview.png)
+
+### Test system specification
 
 
