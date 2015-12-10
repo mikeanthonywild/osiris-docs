@@ -33,7 +33,17 @@ Many different camera formats exist; one of the key differentiators being the ar
 
 ## Motivations
 
-- High-end cameras are about control
+- High-end cameras are about control - adds extra degree of control
+- Why build?
+    + Cheaper (not the case for a camera - economies of scale)
+    + Tailor to your specifications
+    + Freedom and power of choice of components
+- Potential to foster an open ecosystem (idealistic)
+- Market dominated by big players. Open specification allows smaller players to participate and serve smaller, more specialised markets which are too niche for big players.
+
+Professional camera systems are second-to-none when it comes to image quality and usability. The camera accessories market in Western Europe and the USA was worth $1.7bn in 2006, a market which owed its existence to the modularity of modern cameras. With $270 of accessories bought per Digital Single Lens Reflex (DSLR) camera on average, customisability is clearly an important feature. [Camera Accessories Market to top Euros 1.1bn in Western Europe by 2009, Understanding and Solutions, March 2007 - https://web.archive.org/web/20070604201557/http://www.uands.com/downloadarticle.asp?id=43]. Despite this, cameras lack customisability in one key area: IO expansion. Audio, video and storage interfaces are usually a fixed function of the camera's motherboard, and therefore are not interchangeable – users must pre-empt their requirements in order to 'futureproof' their purchase. Inevitably these performance limits will be met; if a user wishes to step beyond these limits then an entirely new camera must be purchased. While some parts will undoubtedly be at the cutting edge of technology and require semi-frequent upgrades, other parts (camera bodies, audio amplifiers) [ref. limit of human auditory perception] may be technologically more mature and adhere to longer progression time-scales. Thus it seems wasteful and costly to re-purchase these parts when buying a new camera system.
+
+It is not the intent of this paper however, to suggest that the concept of an interchangeable camera sensor is entirely original – a few high-end medium / large format cameras exist which support interchangeable 'sensor backs' designed by Hasselblad, Phase One and Mayima, however the interfaces are proprietary, thus limiting the user to a small handful of first-party options; additionally, the prohibitively high price (upwards of $10,000 at the time of writing) puts them far out of reach for the average professional photographer. Rather, the motivation of this project is to design an open standard for interchangeable sensors which can be freely implemented by anyone. In doing so, the basis for a truly modular and upgradable camera system is provided, with a broad range of applications including cinema, photography and computer vision. While idealistic, an open standard would benefit consumers by enabling new companies to gain a foothold serving smaller, more specialised markets which are too niche for established companies such as Nikon and Canon. Ultimately, this project aims to [......] by improving expandability options and fostering openness.  
 
 ## High-speed data transmission
 
