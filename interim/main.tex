@@ -21,7 +21,7 @@
 \newacronym{fps}{FPS}{frames per second}
 \newacronym{hdl}{HDL}{hardware description language}
 \newacronym{hdmi}{HDMI}{High-Definition Multimedia Interface}
-\newacronym{io}{IO}{Input / output}
+\newacronym{io}{IO}{input / output}
 \newacronym{mipi}{MIPI}{Mobile Industry Processor Interface}
 \newacronym{pcb}{PCB}{printed circuit board}
 \newacronym{qvga}{QVGA}{quarter VGA}
@@ -71,7 +71,14 @@ Today, there are many different camera formats available -- one of the key diffe
 
 Professional camera systems are second-to-none when it comes to image quality and usability. The camera accessories market in Western Europe and the USA was worth \$1.7bn in 2006, a market which owed its existence to the modularity of modern cameras. With \$270 of accessories bought per \gls{dslr} camera on average, customisability is clearly an important feature \cite{9_understanding_and_solutions_2007}. Despite this, cameras lack customisability in one key area: IO expansion. Audio, video and storage interfaces are usually a fixed function of the camera's motherboard, and therefore non-interchangeable -- users must pre-empt their requirements in order to 'futureproof' their purchase. Inevitably these performance limits will be met; if a user wishes to step beyond these limits then an entirely new camera must be purchased. While some parts will undoubtedly be at the cutting edge of technology and require semi-frequent upgrades, other parts (camera bodies, audio amplifiers) may be technologically more mature and adhere to longer progression time-scales; thus it seems wasteful and costly to re-purchase these parts when buying a new camera system.
 
-It is not the intent of this paper however, to suggest that the concept of an interchangeable camera sensor is entirely original -- a few high-end medium / large format cameras -- designed by Hasselblad, Phase One and Mayima -- exist which support interchangeable 'sensor backs' , however the interfaces are proprietary, thus limiting the user to a small handful of first-party options. Additionally, the prohibitively high price (upwards of \$10,000 at the time of writing) puts them far out of reach for the average professional photographer. Rather, the motivation of this project is to design an open standard for interchangeable sensors which can be freely implemented by anyone. In doing so, the basis for a truly modular and upgradable camera system is provided, with a broad range of applications including cinema, photography and computer vision. While idealistic, an open standard would benefit consumers by enabling new companies to gain a foothold serving smaller, more specialised markets which are too niche for established companies such as Nikon and Canon. Ultimately, this project aims to improve the camera selection available to consumers in the future by improving expandability options and fostering openness.
+It is not the intent of this paper however, to suggest that the concept of an interchangeable camera sensor is entirely original -- a few high-end medium / large format cameras -- designed by Hasselblad, Phase One and Mayima -- exist which support interchangeable 'sensor backs' , however the interfaces are proprietary, thus limiting the user to a small handful of first-party options. Additionally, the prohibitively high price (upwards of \$10,000 at the time of writing) puts them far out of reach for the average professional photographer. Rather, the motivation of this project is to design an open standard for interchangeable sensors which can be freely implemented by anyone. In doing so, the basis for a truly modular and upgradable camera system is provided, with a broad range of applications including cinema, photography and computer vision. Figure \ref{fig:sensor_module} illustrates how this might work in practice. While idealistic, an open standard would benefit consumers by enabling new companies to gain a foothold serving smaller, more specialised markets which are too niche for established companies such as Nikon and Canon. Ultimately, this project aims to improve the camera selection available to consumers in the future by improving expandability options and fostering openness.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=1\textwidth]{sensor_module.png}
+  \caption{Inserting the sensor module into a camera}
+  \label{fig:sensor_module}
+\end{figure}
 
 \section{Pre-requisite concepts}
 
@@ -164,7 +171,7 @@ On the master side of the interface is a second Zynq 7000 \gls{fpga} acting as t
   \label{table:interface_specification}
 \end{table}
 
-The specifications in Table \ref{table:interface_specification} were decided after surveying best-selling cameras across several markets, consisting of cinema cameras, \glspl{dslr} and computer-vision / industrial cameras This survey is visualised in [appendix figure x].
+The specifications in Table \ref{table:interface_specification} were decided after surveying best-selling cameras across several markets, consisting of cinema cameras, \glspl{dslr} and computer-vision / industrial cameras.
 
 \bibliographystyle{plain}
 \bibliography{bibliography.bib}
@@ -245,6 +252,17 @@ Currently the design is loaded onto the hardware but lacks any form of testing. 
 
 \chapter{Risk assessment}
 
-...
+\begin{table}[h]
+  \centering
+  \small
+  \begin{tabular}{p{3cm}p{3cm}p{1cm}p{1cm}p{3cm}}
+  Risk description                                  & Impact description                                              & Likelihood rating & Impact rating & Preventative actions                                                                                                   \\
+  \hline
+  Unable to source high-performance image sensor    & Need to generate test pattern to benchmark system               & Medium            & Low           & Currently in contact with company concerning sponsorship and acquiring parts                                           \\
+  Damage to development board                       & Limited to only one development board until replacement arrives & Low               & Medium        & Already have a spare development board                                                                                 \\
+  Unforseen timing, constraint and stability issues & An unstable non-functioning design                              & Medium            & High          & Code review of existing project to ensure good development practices and stamp out issues before they become a problem \\
+  Trouble hitting desired throughput                & Forced to reduce image resolution                               & Medium            & Medium        & Easy to add additional lanes if throughput limit reached - have plenty of HDMI code to use as a starting point        
+  \end{tabular}
+\end{table}
 
 \end{document}
