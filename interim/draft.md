@@ -1,9 +1,33 @@
-# Introduction
+# Contents
 
-- Proliferation of digital cameras - film is niche
-- Heart of camera - importance of image sensor
-- Lack of modularity
-- Project proposal
+- Introduction
+    + A brief history of camera technology
+    + Motivation
+    + Pre-requisite concepts
+        * CCD and CMOS sensor technologies
+        * High-speed data transmission
+    + Project testing platform
+        * Introduction to test system architecture
+        * Test system specification
+- High-speed serial interfaces
+    + Signal integrity
+    + SERDES
+    + Line coding
+- High-definition multimedia interface
+    + Introduction
+    + Modifications
+- Sensor controllers
+    + OV7670
+- Testing
+    + Signal integrity
+    + Electromagnetic interference
+    + Bit error rate and image integrity
+    + Optical and sensor performance
+- Case study
+- Future work
+- Conclusion
+
+# Introduction
 
 [Opening sentence...] cameras based on older film technologies have been confined to a diminishing list of niche uses, mainly in traditional film production and fine arts photography. At the heart of any digital camera lies the image sensor, which converts incident photons into electrical signals which can be digitised, processed and stored. 
 
@@ -12,13 +36,6 @@ Modern cameras – both still-motion and video – have a multitude of upgrade o
 This paper details an FPGA-based sensor-agnostic interface which can be used to connect any image sensor to any image processor, thus providing the basis for a truly modular and upgradeable camera system.
 
 ## A brief history of camera technology
-
-- Focus light through lens, through aperture, project onto backplane / imaging plane. The more light, the brighter the image. reference and diagram.
-- First camera as we know it... based on camera-obscura
-- All that's changed is the imaging plane - digital instead of analogue.
-- First digital camera at Eastman Kodak 
-- Increased sensor size = higher quality images - same thing for film
-- Graph of notable camera system resolutions?
 
 Modern cameras can trace their humble beginnings back to the camera obscura first described by ancient Chinese philosopher Mozi, an optical trick used to pass light from an external scene through a hole and project it on a surface [http://www.sennhs.org/ourpages/auto/2013/4/1/41446028/The%20Birth%20of%20Cameras.pdf]. In around 1816, French inventor Nicéphore Niépce managed to capture the first camera images using paper treated with silver chloride [Stokstad, Marilyn; David Cateforis; Stephen Addiss (2005). Art History (Second ed.). Upper Saddle River, New Jersey: Pearson Education. p. 964. ISBN 0-13-145527-3.]. Continuing his work, Niépce's partner Louis Daguerre developed the first conventional camera using a simple lens to focus light onto a silver-coated copper plate [http://preserve.harvard.edu/daguerreotypes/].
 
@@ -44,9 +61,6 @@ It is not the intent of this paper however, to suggest that the concept of an in
 
 ### CCD and CMOS sensor technologies
 
-- How are CCD and CMOS sensors different - how do they work?
-- **If they measure light intensity, how do we get colour images?**
-
 The sensors themselves fall into one of two categories depending on technology used: Charge-coupled Devices (CCD) and Complementary Metal-Oxide Semiconductors (CMOS). While both use an array of photosites to collect charge from incident photons during an exposure time, the readout and analogue-to-digital conversion process differs for each. During readout time, CCDs sequentially shift the accumulated charges into horizontal and vertical readout registers where they are transferred to a chip-level output amplifier and analogue-to-digital converter where the binary bitstream is generated. CCD image sensors can are capable of very low noise and high sensitivity due to the use optimised photosites; this made them a very popular choice for high-quality cameras.
 
 Unlike CCDs, which rely on a very specialised fabrication process, CMOS sensors can be manufactured using traditional CMOS processes, benefiting greatly from the associated economies of scale. Active Pixel Sensors (APS), the most common form of CMOS sensor, differ from CCDs in that each photosite contains a dedicated amplifier, meaning that the light-induced voltages can be driven directly to the row and column decoders for digitisation. Because of the CMOS fabrication process, other camera functions can also be integrated onto the same chip, cutting both the cost and size of the device. [Ge, X., 2012. The design of a global shutter CMOS image sensor in 110nm technology (Doctoral dissertation, TU Delft, Delft University of Technology).]  This level of integration, and the faster speeds of parallel readout processing have meant that CMOS sensors have seen a recent surge in popularity, and are forecast to account for 85% of the total image sensor market in 2017. [http://www.icinsights.com/data/articles/documents/526.pdf]
@@ -56,16 +70,6 @@ Photosites can only measure light intensity, not wavelength, resulting in greysc
 ![Bayer filter](https://upload.wikimedia.org/wikipedia/commons/3/37/Bayer_pattern_on_sensor.svg)
 
 ### High-speed data transmission
-
-- Video is resource-intensive
-- Current market demands high definition content by default
-- 1080p bitrate calculation
-- Signal integrity issues
-    + Transmission line effects + impedance mismatch
-    + Length matching
-    + Crosstalk
-
-- Existing interfaces (USB, GigE Vision, Cameralink, MIPI, HDMI?). Table 2 shows...
 
 While sensors can capture both still images and video, this project mainly concerns the latter due to its resource-intensive nature. A recent study found that 75% of households in the United States had a high-definition television [http://www.leichtmanresearch.com/press/020813release.pdf]. The popularity of HD content makes it important to consider how bandwidth requirements increase with larger resolutions. An uncompressed 24-bit colour 1080p video at 24fps has a bitrate of almost 1.2 Gbps, as calculated in [equation x], well within the range where signal integrity becomes important.
 
@@ -84,13 +88,6 @@ HDMI 2.0        N/A         HDMI        18 Gbps     Serial      Low / Medium
 
 ## Project testing platform
 
-- Designing a full camera is too much, but project should still be tested with real-world image data in realtime
-- Establish a successful link between image sensor and image processor
-- Heavy emphasis on testing. Test:
-    + Reliability (signal integrity, bit error rate = image integrity)
-    + Scalability - must work across range of resolutions and framerates
-    + Max throughput - ensure it's suitable for real-world applications!
-
 The design of a full camera system is beyond the scope of this project, however an image sensor produced by OmniVision is used to capture real-world image data, providing a realistic test environment. FPGAs are used extensively to set up a reconfigurable interface between the sensor and processor sides of the link, as well as generate test patterns for synthetic throughput and reliability tests. Given the main requirement of a sensor-agnostic interface is to work with a large range of sensors, there is a heavy emphasis on evaluating the system performance across several key metrics:
 
 - Reliability – preserving signal integrity and ensuring low bit error rates for a stable and trustworthy system.
@@ -99,12 +96,21 @@ The design of a full camera system is beyond the scope of this project, however 
 
 ### Introduction to test system architecture
 
-- 
-
-The test system detailed in [figure x] is based around Xilinx's Zynq platform 
+The test system detailed in [figure x] makes extensive use of field-programmable-gate-arrays (FPGAs) and is mainly based around the Zynq platform from Xilinx – a programmable system-on-chip (SoC) with an embedded ARM core. FPGAs are used instead of microcontrollers for several reasons, primarily because of the far greater flexibility [....] FPGAs are massively parallel and contain highly programmable logic as well as multi-gigabit transceivers. Microcontrollers on the other hand, rely on fixed peripherals for a limited range of interface support; those which are not supported by the built-in peripherals must utilise bit-banging – the process of using software to control the timing, synchronisation and state of IO ports to transmit or receive data. Microcontrollers simply lack the horsepower and resources to bit-bang a custom high-speed serial interface. 
 
 ![Block diagram overview](block_diagram_overview.png)
 
+The system in [figure x] consists of an OmniVision OV7670 image sensor connected to a parallel input on a Xilinx Zynq 7000 FPGA acting as sensor controller. Pixel data is pulled from the sensor by the controller and placed into a RAM framebuffer where it can be retrieved by another part of the controller and transmitted across the interface. Optionally the controller can also generate a custom test pattern to be transmitted instead of the real sensor output for the purpose of system testing and benchmarking across a range of resolutions and framerates. These two components form the *sensor module*, which is designed to be interchangeable for other sensor-controller pairs. The design of the interface highlighted in green forms the main part of this project. 
+
+On the master side of the interface is a second Zynq 7000 FPGA acting as the host controller. Pixel data going over the interface is received and decoded by the host before being stored in a framebuffer in RAM. The embedded ARM core inside the host forms the processing system, which takes each from from RAM and serialises it into a RAW video stream in flash memory for playback on a computer. These components form the *image processor*, which is capable of communicating with any connected *sensor module*.
+
 ### Test system specification
 
+Resolution: 320x240 (QVGA) - 2048x1080 (DCI 2K)
+Framerate: 24 FPS - 60 FPS
+Pixel depth: 8 bits
+Maximum throughput: 1.2 Gbps
+Output format: SD card
+
+The specifications in [table x] where decided after surveying best-selling cameras across several markets, consisting of cinema cameras, single-lens-reflex cameras (DSLRs) and computer-vision / industrial cameras This survey is visualised in [figure x].
 
