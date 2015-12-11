@@ -1,0 +1,250 @@
+\documentclass[a4paper]{report}
+
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage[acronym]{glossaries}
+\usepackage[colorlinks]{hyperref}
+
+% Glossary definitions - need to move to own file
+\makeglossaries
+\newacronym{ac}{AC}{alternating current}
+\newacronym{aps}{APS}{active pixel sensor}
+\newacronym{ccd}{CCD}{charge-coupled device}
+\newacronym{cdc}{CDC}{clock domain crossing}
+\newacronym{cfa}{CFA}{colour filter array}
+\newacronym{cmos}{CMOS}{complementary metal-oxide-semiconductor}
+\newacronym{csi}{CSI}{camera serial interface}
+\newacronym{dci}{DCI}{Digital Cinema Initiatives}
+\newacronym{dslr}{DSLR}{digital single-lens reflex}
+\newacronym{dut}{DUT}{design under test}
+\newacronym{fpga}{FPGA}{field-programmable gate array}
+\newacronym{fps}{FPS}{frames per second}
+\newacronym{hdl}{HDL}{hardware description language}
+\newacronym{hdmi}{HDMI}{High-Definition Multimedia Interface}
+\newacronym{io}{IO}{Input / output}
+\newacronym{mipi}{MIPI}{Mobile Industry Processor Interface}
+\newacronym{pcb}{PCB}{printed circuit board}
+\newacronym{qvga}{QVGA}{quarter VGA}
+\newacronym{ram}{RAM}{random-access memory}
+\newacronym{sccb}{SCCB}{serial camera control bus}
+\newacronym{soc}{SoC}{system-on-chip}
+\newacronym{usb}{USB}{universal serial bus}
+\newacronym{vga}{VGA}{video graphics array}
+
+\title{Design of a Standardised Interface for Image Sensors}
+\author{Michael Wild -- m.a.wild@se12.qmul.ac.uk \and Supervisor: Miles Hansard -- miles.hansard@qmul.ac.uk}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+\listoffigures
+
+\listoftables
+
+\chapter{Introduction}
+
+Modern cameras -- both still-motion and video -- feature a high level of upgradability: lenses, filters and other accessories are all interchangeable, permitting finer control. As one of the most important components of the system, the image sensor plays a vital role in the composure of the final image. It dictates not only the output resolution, but also light sensitivity, colour representation, frame-rate and crop-factor. In spite of its significance, only a handful of expensive cinema and medium-format cameras include interchangeable sensors; even then, these components are proprietary. Upgrading the sensor in a mainstream camera requires the purchase of an entirely new system.
+
+This paper details an FPGA-based sensor-agnostic interface which can be used to connect any image sensor to any image processor, thus providing the basis for a truly modular and upgradable camera system.
+
+\section{A brief history of camera technology}
+
+Modern cameras can trace their humble beginnings back to the camera obscura first described by ancient Chinese philosopher Mozi, who discovered an optical trick to pass light from an external scene through a hole and project it on a surface \cite{1_woolfson_2012}. In around 1816, French inventor Nicéphore Niépce managed to capture the first camera images using paper treated with silver chloride \cite{2_stokstad_cateforis_addiss_2005}. Continuing his work, Niépce's partner Louis Daguerre developed the first conventional camera using a simple lens to focus light onto a silver-coated copper plate \cite{3_harvard_library_preservation}.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=1\textwidth]{camera_physics_diagram.png}
+  \caption{Light entering a camera and hitting sensor element}
+  \label{fig:camera_physics_diagram}
+\end{figure}
+
+Figure \ref{fig:camera_physics_diagram} illustrates a very basic camera. Light from an external scene is focused by a lens and passed through an aperture hole where it is projected, inverted, onto a photosensitive surface for capture. The focal length dictates the distance between the optical centre of the lens and the sensor when the lens is focused to infinity \cite{4_pot_2010}. A shutter mechanism behind the aperture is used to control how much light hits the surface of the sensor, thus exposing the image. There are multiple ways to increase image exposure: expanding the aperture, holding the shutter open for longer, or increasing the ISO sensitivity of the sensor. Inversely, narrower apertures, shorter exposure times and lower sensitivities all decease the amount of light that hits the sensor, resulting in a darker image. 
+
+Following the invention of the first transistor at Bell Laboratories in 1947, electronic devices could be dramatically reduced in size through the use of integrated circuits, paving the way for the start of the digital era \cite{5_computer_history_museum}. The first self-contained digital camera was developed by Steve Sasson of Eastman Kodak in 1975. Instead of using film, Sasson focused the light onto a state-of-the-art digital image sensor based on the first \gls{ccd} invented by Bell Laboratories scientists Willard Boyce and George Smith), the output of which was saved to a tape cassette for later viewing on a TV \cite{6_information_for_the_public,7_sasson_2007}.
+
+Today, there are many different camera formats available -- one of the key differentiators being the area of the image sensor. A larger sensor can capture more light and thus the dynamic range is greatly increased, resulting in higher image quality \cite{8_chen_catrysse_el_gamal_wandell_2000}. This is true of both digital sensors, and their film counterparts.
+
+\section{Motivation}
+
+Professional camera systems are second-to-none when it comes to image quality and usability. The camera accessories market in Western Europe and the USA was worth \$1.7bn in 2006, a market which owed its existence to the modularity of modern cameras. With \$270 of accessories bought per \gls{dslr} camera on average, customisability is clearly an important feature \cite{9_understanding_and_solutions_2007}. Despite this, cameras lack customisability in one key area: IO expansion. Audio, video and storage interfaces are usually a fixed function of the camera's motherboard, and therefore non-interchangeable -- users must pre-empt their requirements in order to 'futureproof' their purchase. Inevitably these performance limits will be met; if a user wishes to step beyond these limits then an entirely new camera must be purchased. While some parts will undoubtedly be at the cutting edge of technology and require semi-frequent upgrades, other parts (camera bodies, audio amplifiers) may be technologically more mature and adhere to longer progression time-scales; thus it seems wasteful and costly to re-purchase these parts when buying a new camera system.
+
+It is not the intent of this paper however, to suggest that the concept of an interchangeable camera sensor is entirely original -- a few high-end medium / large format cameras -- designed by Hasselblad, Phase One and Mayima -- exist which support interchangeable 'sensor backs' , however the interfaces are proprietary, thus limiting the user to a small handful of first-party options. Additionally, the prohibitively high price (upwards of \$10,000 at the time of writing) puts them far out of reach for the average professional photographer. Rather, the motivation of this project is to design an open standard for interchangeable sensors which can be freely implemented by anyone. In doing so, the basis for a truly modular and upgradable camera system is provided, with a broad range of applications including cinema, photography and computer vision. While idealistic, an open standard would benefit consumers by enabling new companies to gain a foothold serving smaller, more specialised markets which are too niche for established companies such as Nikon and Canon. Ultimately, this project aims to improve the camera selection available to consumers in the future by improving expandability options and fostering openness.
+
+\section{Pre-requisite concepts}
+
+\subsection{CCD and CMOS sensor technologies}
+
+The sensors themselves fall into one of two categories depending on technology used: \gls{ccd} and \gls{cmos}. While both use an array of photosites to collect charge from incident photons during exposure time, the readout and analogue-to-digital conversion process differs for each. During readout time, \glspl{ccd} sequentially shift the accumulated charges into horizontal and vertical readout registers where they are transferred to a chip-level output amplifier and analogue-to-digital converter to generate a binary bitstream. \gls{ccd} image sensors are capable of very low noise and high sensitivity due to the use optimised photosites; this made them a very popular choice for applications demanding high image quality.
+
+Unlike \glspl{ccd}, which rely on a very specialised fabrication process, CMOS sensors can be manufactured using traditional \gls{cmos} processes, benefiting greatly from the associated economies of scale. \gls{aps}, the most common form of \gls{cmos} sensor, differ from \glspl{ccd} in that each photosite contains a dedicated amplifier, meaning that the light-induced voltages can be driven directly to the row and column decoders for digitisation. Because of the \gls{cmos} fabrication process, other camera functions can also be integrated onto the same chip, cutting both the cost and size of the device \cite{10_ge_2012}.  This level of integration, and the faster speeds of parallel readout processing have meant that \gls{cmos} sensors have seen a recent surge in popularity, and are forecast to account for 85\% of the total image sensor market in 2017 \cite{11_ic_insights_2013}.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=1\textwidth]{bayer_pattern.png}\par
+Source: diagram by Cburnett, distributed under CC BY-SA 3.0
+  \caption{Bayer filter}
+  \label{fig:bayer_pattern}
+\end{figure}
+
+Photosites can only measure light intensity, not wavelength, producing greyscale images. By placing a coloured filter in front of each photosite, it is possible to only let light of a certain wavelength through \cite{12_eastman_kodak_company_1976}. Given the fixed pattern of the \gls{cfa}, it is possible to generate a full-colour image using a demosaicing algorithm, the simplest of which is bilinear interpolation, to calculate the red, green and blue intensities for each pixel \cite{13_malvar_he_cutler_2015}. One such \gls{cfa}, the Bayer filter, contains twice as many green elements as red and blue to mimic the physiology of the human eye, as illustrated in Figure \ref{fig:bayer_pattern}.
+
+\section{High-speed data transmission}
+
+While sensors can capture both still images and video, this project mainly concerns the latter due to its resource-intensive nature. A recent study found that 75\% of households in the United States had a high-definition television \cite{14_leichtman_research_group_2013}. The popularity of HD content makes it important to consider how bandwidth requirements increase with larger resolutions. An uncompressed 24-bit colour 1080p video at 24p has a bitrate of almost 1.2 Gbps, as calculated in Equation \ref{eq:hd_bandwidth}, well within the range where signal integrity becomes important.
+
+\begin{equation}
+  \begin{split}
+    \mathbf{BW} &= (1920*1080) \, \mathrm{pixels} * 24  \, \mathrm{bpp} * 24 \, \mathrm{fps} \\
+                &= 1.19  \, \mathrm{Gbps}
+  \end{split}  
+  \label{eq:hd_bandwidth}
+\end{equation}
+
+When transmitting a high-frequency signal between two devices, close attention must be paid to many aspects of the design to ensure that the signal integrity is preserved. The basic premise of signal integrity is covered here, however later sections will cover the issue in greater depth. With low-frequency signals, a wire or PCB trace can be modelled as an ideal circuit, without resistance, capacitance or inductance. As the frequency increases however, so-called transmission line effects are prominent and the \gls{ac} characteristics of the wire become very important. If there is a mismatch between the source, line and receiver impedances then the transmitted signal will not be fully absorbed at the load, resulting in any excess energy rebounding between source and receiver repeatedly until it has been fully absorbed. Due to superposition, the reflected waves will cause ringing and other signal integrity issues that reduce signal quality. If the issue is severe enough, the receiver cannot correctly interpret the signal and bit errors will occur. Parallel wires can also cause mutual inductance problems whereby the magnetic field generated by current travelling through one wire, will induce a current in the adjacent wire. Similarly, mutual capacitance is caused by the coupling of the two electric fields. These issues can be mitigated by taking care to ensure that impedance is properly controlled and \gls{pcb} traces are placed with care when designing circuits \cite{15_basic_principles_of_signal_integrity_2007}.
+
+Table \ref{table:existing_protocols} shows a list of existing protocols / interfaces for transmitting image data.
+
+\begin{table}
+  \centering
+  \begin{tabular}{llllll}
+  Name      & Parent  & Family    & Bandwidth & Scheme  & Complexity \\
+  \hline
+  USB3 Vision   & USB 3   & USB       & 2.8 Gbps  & Serial  & High \\
+  GigE Vision   & IP / UDP  & Ethernet    & 800 Mbps  & Serial  & Medium \\
+  Camera Link   & N/A     & Camera Link   & 6.8 Gbps  & Serial  & Medium \\
+  MIPI CSI-3  & M-PHY   & MIPI      & 23.2 Gbps & Serial  & Medium \\
+  HDMI 2.0    & N/A     & HDMI      & 18 Gbps   & Serial  & Low / Medium
+  \end{tabular}
+  \caption{Existing protocols and interfaces for transmitting image data      \protect\cite{16_von_fintel_2013,17_arrowdevices.com_2014,18_hdmi.org}}.
+  \label{table:existing_protocols}
+\end{table}
+
+\section{Project testing platform}
+
+The design of a full camera system is beyond the scope of this project, however an image sensor produced by OmniVision is used to capture real-world image data, providing a realistic test environment. \Glspl{fpga} are used extensively to set up a reconfigurable interface between the sensor and processor sides of the link, as well as generate test patterns for synthetic throughput and reliability tests. Given the main requirement of a sensor-agnostic interface is to work with a large range of sensors, there is a heavy emphasis on evaluating the system performance across several key metrics:
+
+\begin{itemize}
+  \item Reliability -- preserving signal integrity and ensuring low bit error rates for a stable and trustworthy system.
+  \item Scalability -- transferring data across a wide range of resolutions and framerates to maintain a high level of expandability.
+  \item Maximum throughput -- ensuring that the sensor interface does not bottleneck the system.
+\end{itemize}
+
+\subsection{Introduction to test system architecture}
+
+The test system detailed in Figure \ref{fig:block_diagram_overview} is mainly based around the Zynq \gls{fpga} platform from Xilinx -- a programmable \gls{soc} with an embedded ARM core. \Glspl{fpga} are used instead of microcontrollers for several reasons, primarily because of the far greater flexibility of programmable logic, but also due to the high number of \gls{io} pins and throughput capabilities required to interface with high-resolution image sensors. \Glspl{fpga} are massively parallel and contain reconfigurable logic as well as multi-gigabit transceivers. Microcontrollers on the other hand, rely on fixed peripherals for a limited range of interface support; those which are not supported by the built-in peripherals must utilise bit-banging -- the process of using software to control the timing, synchronisation and state of \gls{io} ports to transmit or receive data. Microcontrollers simply lack the horsepower and resources to bit-bang a custom high-speed serial interface.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=1\textwidth]{block_diagram_overview.png}
+  \caption{Test system block diagram}
+  \label{fig:block_diagram_overview}
+\end{figure}
+
+The system in Figure \ref{fig:block_diagram_overview} consists of an OmniVision OV7670 image sensor connected to a set of parallel inputs on a Xilinx Zynq 7000 \gls{fpga} acting as sensor controller. Pixel data is pulled from the sensor by the controller and placed into a \gls{ram} framebuffer where it can be retrieved by another part of the controller and transmitted across the interface. Optionally the controller can also generate a custom test pattern to be transmitted instead of the real sensor output for the purpose of system testing and benchmarking across a range of resolutions and framerates. These two components form the \textit{sensor module}, which is designed to be interchangeable with other sensor-controller pairs. The design of the interface highlighted in bold forms the main part of this project. 
+
+On the master side of the interface is a second Zynq 7000 \gls{fpga} acting as the host controller. Pixel data going over the interface is received and decoded by the host before being stored in a framebuffer in \gls{ram}. The embedded ARM core inside the host forms the processing system, which takes each frame from \gls{ram} and serialises it into a RAW video stream in flash memory for playback on a computer. These components form the \textit{image processor}, which is capable of communicating with any connected \textit{sensor module}.
+
+\subsection{Test system specification}
+
+\begin{table}
+  \centering
+  \begin{tabular}{l | ll}
+               & Minimum        & Maximum            \\
+  \hline
+  Resolution   & 320x240 (QVGA) & 2048x1080 (DCI 2K) \\
+  Pixel depth  &                & 8-bit              \\
+  Pixel format &                & Bayer RAW          \\
+  Frame-rate   & 24p            & 60p                \\
+  Throughput   &                & 1.2 Gbps          
+  \end{tabular}
+  \caption{Sensor interface specification}
+  \label{table:interface_specification}
+\end{table}
+
+The specifications in Table \ref{table:interface_specification} were decided after surveying best-selling cameras across several markets, consisting of cinema cameras, \glspl{dslr} and computer-vision / industrial cameras This survey is visualised in [appendix figure x].
+
+\bibliographystyle{plain}
+\bibliography{bibliography.bib}
+
+\printglossary[type=\acronymtype]
+
+\chapter{Summary of progress}
+
+The first milestone for the project was to build a system to capture frames from a low-resolution image sensor in order to get comfortable using \glspl{fpga} for data transfer and image processing. OmniVision's low-cost OV7670 sensor was chosen for its simple operation and the abundance of reference material available due to its popularity in the hobbyist community. The OV7670 was connected to a Xilinx Spartan-3E \gls{fpga} development board provided by the electronics lab.
+
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{1\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{qvga_test_pattern.png}
+    \caption{Captured QVGA test pattern}
+    \label{fig:qvga_test_pattern}
+  \end{subfigure}
+  \vfill
+  \begin{subfigure}[b]{1\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{ov7670_capture_waveform.png}
+    \caption{Simulation waveform}
+    \label{fig:ov7670_capture_waveform}
+  \end{subfigure}
+  \caption{Testing the \texttt{ov7670\_capture} module}
+  \label{fig:testing_ov7670}
+\end{figure}
+
+Considerable effort was put into building a solid toolchain and efficient workflow before starting the design process. It was decided that investing time into setting up an automated test framework would pay off later in the time saved debugging and chasing down regressions. Much like \textit{unit tests} are used in software development, hardware designers write \textit{testbenches} to ensure that each aspect of the design behaves as intended. Testbenches are normally written in the same language as the design itself (usually Verilog, SystemVerilog or VHDL), however general-purpose programming in a \gls{hdl} is tedious and the emphasis on processing image data necessitated a higher-level language like Python. As such, the testbenches are written using the MyHDL Python library, which enables hardware designs to be written in Python and compiled to Verilog or VHDL for synthesis. Its main however, is that it can interact with the Icarus Verilog simulator used for this project. This means that testbench code can be written in Python to drive the \gls{dut} written in Verilog. As well as simplifying testbench development, Python has the advantage of being compatible with many automated testing environments. The final setup consisted of using Verilog to design the hardware, Python, MyHDL and Nose to write testbenches / unit tests, Icarus to simulate the design and a simple Makefile to tie everything together. Additionally, Travis Continuous Integration was used to automatically test the code every time a commit was staged to the project repository on GitHub, sending a notification email if the change broke anything. Figure \ref{fig:testing_ov7670} shows the simulation output of the \texttt{ov7670\_capture} module being run with Icarus , viewed in the GtkWave waveform viewer. The \texttt{d} and \texttt{href} signals correspond to a horizontal line of pixels generated by the testbench. The captured test pattern is also depicted.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=1\textwidth]{ov7670_schematic.png}
+  \caption{OV7670 framegrabber schematic}
+  \label{fig:ov7670_schematic}
+\end{figure}
+
+Once the development workflow was finalised, the OV7670 interfacing code was designed and tested one module at a time. The objective for the first milestone being to grab a continuous stream of frames from the OV7670 sensor and display them on a \gls{vga} monitor. Figure \ref{fig:ov7670_schematic} shows the overall system architecture as a collection of interconnected Verilog modules.
+
+Initially, the intention was to pull the pixel data from the sensor and push it straight out onto the \gls{vga} port. Unfortunately the image sensor and \gls{vga} port run at different frequencies and the clocks are derived from two separate sources. When connecting two blocks with different clock frequencies or phases, one must be very careful to avoid \gls{cdc} issues which can lead to instabilities. Instead, the \gls{fpga}'s internal block \gls{ram} was used to create a framebuffer to safely transfer the data across the two clock domains, however the Spartan-3E's severely limited resources required certain sacrifices to be made to image quality. While the Spartan-3E part contains 216K bits of block RAM, a 640x480 RAW image requires 2.457M bits, thus it is too large to fit inside the \gls{fpga}. To get the image to fit with the limited resources available it was necessary to reduce the resolution. A further complication was that the image scaling circuitry inside the OV7670 only supports certain resolutions in certain modes. The mode which produced RAW bayer data (instead of RGB or YUV) did not support the lowest resolution, so \gls{qvga} (320x240) resolution was used, and the bit depth was reduced to 2 bits in order to fit the image inside block RAM, further diminishing the image quality.
+
+The OV7670 image sensor contains a set of internal registers to configure all aspects of the device's operation. In order to set the output resolution and format the \gls{fpga} had to initialise these registers using the \gls{sccb} protocol -- an I2C clone. Rather than invent the wheel again, an \gls{sccb} controller written for a similar project was used to communicated with the image sensor. Using a combination of the sensor datasheet, implementation guide and various community references, the correct register values to produce a 320x240 RAW bayer image were identified. This was particularly frustrating as the official documentation contradicts itself in a few places, making it hard to determine the correct settings.
+
+Following the successful simulation of each module, an IP block was generated for the framebuffer, and the design was imported into Xilinx's ISE tool for synthesis. After the synthesis netlist was generated, pre-routing pin constraints were added to specify how the design was to connect with the \gls{io} ports on the \gls{fpga}. The last step was to perform the place-and-route process to generate a \textit{bitfile} which was loaded onto the device.
+
+Currently the design is loaded onto the hardware but lacks any form of testing. The immediate next steps are to start debugging the design on hardware and fix any issues. This will lead nicely into the design of the sensor controller to host controller interface for the next part of the project.
+
+\chapter{Final report structure}
+
+\begin{itemize}
+  \item High-speed serial interfaces
+  \begin{itemize}
+    \item Signal integrity
+    \item SERDES
+    \item Line coding
+  \end{itemize}
+  \item High-Definition Multimedia Interface
+  \begin{itemize}
+  \item Introduction
+    \item Modifications
+  \end{itemize}
+  \item Sensor controllers
+  \begin{itemize}
+  \item OmniVision OV7670
+  \end{itemize}
+  \item Testing
+  \begin{itemize}
+  \item Signal integrity
+    \item Electromagnetic interference
+    \item Bit error rate and image integrity
+    \item Optical and sensor performance
+  \end{itemize}
+  \item Case study
+  \item Future work
+  \item Conclusion
+\end{itemize}
+
+\chapter{Risk assessment}
+
+...
+
+\end{document}

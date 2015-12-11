@@ -29,9 +29,9 @@
 
 # Introduction
 
-Modern cameras – both still-motion and video – feature a high level of upgradeability: lenses, filters and other accessories are all interchangeable, permitting finer control. As one of the most important components of the system, the image sensor plays a vital role in the composure of the final image. It dictates not only the output resolution, but also light sensitivity, colour representation, frame-rate and crop-factor. In spite of its significance, only a handful of expensive cinema and medium-format cameras include interchangeable sensors; even then, these components are proprietary. Upgrading the sensor in a mainstream camera requires the purchase of an entirely new system.
+Modern cameras – both still-motion and video – feature a high level of upgradability: lenses, filters and other accessories are all interchangeable, permitting finer control. As one of the most important components of the system, the image sensor plays a vital role in the composure of the final image. It dictates not only the output resolution, but also light sensitivity, colour representation, frame-rate and crop-factor. In spite of its significance, only a handful of expensive cinema and medium-format cameras include interchangeable sensors; even then, these components are proprietary. Upgrading the sensor in a mainstream camera requires the purchase of an entirely new system.
 
-This paper details an FPGA-based sensor-agnostic interface which can be used to connect any image sensor to any image processor, thus providing the basis for a truly modular and upgradeable camera system.
+This paper details an FPGA-based sensor-agnostic interface which can be used to connect any image sensor to any image processor, thus providing the basis for a truly modular and upgradable camera system.
 
 ## A brief history of camera technology
 
@@ -55,7 +55,7 @@ It is not the intent of this paper however, to suggest that the concept of an in
 
 ### CCD and CMOS sensor technologies
 
-The sensors themselves fall into one of two categories depending on technology used: Charge-coupled Devices (CCD) and Complementary Metal-Oxide Semiconductors (CMOS). While both use an array of photosites to collect charge from incident photons during exposure time, the readout and analogue-to-digital conversion process differs for each. During readout time, CCDs sequentially shift the accumulated charges into horizontal and vertical readout registers where they are transferred to a chip-level output amplifier and analogue-to-digital converter to generate a binary bitstream. CCD image sensors are capable of very low noise and high sensitivity due to the use optimised photosites; this made them a very popular choice for applications demanding high image quality.
+The sensors themselves fall into one of two categories depending on technology used: Charge-coupled devices (CCD) and complementary metal-oxide-semiconductors (CMOS). While both use an array of photosites to collect charge from incident photons during exposure time, the readout and analogue-to-digital conversion process differs for each. During readout time, CCDs sequentially shift the accumulated charges into horizontal and vertical readout registers where they are transferred to a chip-level output amplifier and analogue-to-digital converter to generate a binary bitstream. CCD image sensors are capable of very low noise and high sensitivity due to the use optimised photosites; this made them a very popular choice for applications demanding high image quality.
 
 Unlike CCDs, which rely on a very specialised fabrication process, CMOS sensors can be manufactured using traditional CMOS processes, benefiting greatly from the associated economies of scale. Active Pixel Sensors (APS), the most common form of CMOS sensor, differ from CCDs in that each photosite contains a dedicated amplifier, meaning that the light-induced voltages can be driven directly to the row and column decoders for digitisation. Because of the CMOS fabrication process, other camera functions can also be integrated onto the same chip, cutting both the cost and size of the device.[10]  This level of integration, and the faster speeds of parallel readout processing have meant that CMOS sensors have seen a recent surge in popularity, and are forecast to account for 85% of the total image sensor market in 2017.[11]
 
@@ -82,7 +82,7 @@ HDMI 2.0        N/A         HDMI        18 Gbps     Serial      Low / Medium
 
 ## Project testing platform
 
-The design of a full camera system is beyond the scope of this project, however an image sensor produced by OmniVision is used to capture real-world image data, providing a realistic test environment. FPGAs are used extensively to set up a reconfigurable interface between the sensor and processor sides of the link, as well as generate test patterns for synthetic throughput and reliability tests. Given the main requirement of a sensor-agnostic interface is to work with a large range of sensors, there is a heavy emphasis on evaluating the system performance across several key metrics:
+The design of a full camera system is beyond the scope of this project, however an image sensor produced by OmniVision is used to capture real-world image data, providing a realistic test environment. Field-programmable gate arrays (FPGAs) are used extensively to set up a reconfigurable interface between the sensor and processor sides of the link, as well as generate test patterns for synthetic throughput and reliability tests. Given the main requirement of a sensor-agnostic interface is to work with a large range of sensors, there is a heavy emphasis on evaluating the system performance across several key metrics:
 
 - Reliability – preserving signal integrity and ensuring low bit error rates for a stable and trustworthy system.
 - Scalability – transferring data across a wide range of resolutions and framerates to maintain a high level of expandability.
@@ -90,13 +90,13 @@ The design of a full camera system is beyond the scope of this project, however 
 
 ### Introduction to test system architecture
 
-The test system detailed in [figure x] makes extensive use of field-programmable-gate-arrays (FPGAs) and is mainly based around the Zynq platform from Xilinx – a programmable system-on-chip (SoC) with an embedded ARM core. FPGAs are used instead of microcontrollers for several reasons, primarily because of the far greater flexibility of programmable logic, but also due to the high number of IO pins and throughput capabilities required to interface with high-resolution image sensors. FPGAs are massively parallel and contain reconfigurable logic as well as multi-gigabit transceivers. Microcontrollers on the other hand, rely on fixed peripherals for a limited range of interface support; those which are not supported by the built-in peripherals must utilise bit-banging – the process of using software to control the timing, synchronisation and state of IO ports to transmit or receive data. Microcontrollers simply lack the horsepower and resources to bit-bang a custom high-speed serial interface. 
+The test system detailed in [figure x] is mainly based around the Zynq FPGA platform from Xilinx – a programmable system-on-chip (SoC) with an embedded ARM core. FPGAs are used instead of microcontrollers for several reasons, primarily because of the far greater flexibility of programmable logic, but also due to the high number of IO pins and throughput capabilities required to interface with high-resolution image sensors. FPGAs are massively parallel and contain reconfigurable logic as well as multi-gigabit transceivers. Microcontrollers on the other hand, rely on fixed peripherals for a limited range of interface support; those which are not supported by the built-in peripherals must utilise bit-banging – the process of using software to control the timing, synchronisation and state of IO ports to transmit or receive data. Microcontrollers simply lack the horsepower and resources to bit-bang a custom high-speed serial interface. 
 
 ![Block diagram overview](block_diagram_overview.png)
 
 The system in [figure x] consists of an OmniVision OV7670 image sensor connected to a set of parallel inputs on a Xilinx Zynq 7000 FPGA acting as sensor controller. Pixel data is pulled from the sensor by the controller and placed into a RAM framebuffer where it can be retrieved by another part of the controller and transmitted across the interface. Optionally the controller can also generate a custom test pattern to be transmitted instead of the real sensor output for the purpose of system testing and benchmarking across a range of resolutions and framerates. These two components form the *sensor module*, which is designed to be interchangeable with other sensor-controller pairs. The design of the interface highlighted in bold forms the main part of this project. 
 
-On the master side of the interface is a second Zynq 7000 FPGA acting as the host controller. Pixel data going over the interface is received and decoded by the host before being stored in a framebuffer in RAM. The embedded ARM core inside the host forms the processing system, which takes each from from RAM and serialises it into a RAW video stream in flash memory for playback on a computer. These components form the *image processor*, which is capable of communicating with any connected *sensor module*.
+On the master side of the interface is a second Zynq 7000 FPGA acting as the host controller. Pixel data going over the interface is received and decoded by the host before being stored in a framebuffer in RAM. The embedded ARM core inside the host forms the processing system, which takes each frame from RAM and serialises it into a RAW video stream in flash memory for playback on a computer. These components form the *image processor*, which is capable of communicating with any connected *sensor module*.
 
 ### Test system specification
 
@@ -106,7 +106,7 @@ Pixel depth: 8 bits
 Maximum throughput: 1.2 Gbps
 Output format: SD card
 
-The specifications in [table x] were decided after surveying best-selling cameras across several markets, consisting of cinema cameras, single-lens-reflex cameras (DSLRs) and computer-vision / industrial cameras This survey is visualised in [appendix figure x].
+The specifications in [table x] were decided after surveying best-selling cameras across several markets, consisting of cinema cameras, single-lens reflex cameras (DSLRs) and computer-vision / industrial cameras This survey is visualised in [appendix figure x].
 
 # Bibliography
 
@@ -128,6 +128,28 @@ The specifications in [table x] were decided after surveying best-selling camera
 16. http://www.controlvision.co.nz/newsletters/2013/08/Basler_Interface_Comparsion.pdf
 17. http://www.arrowdevices.com/blog/mipi-csi-3-a-game-changer-for-future-camera-technology/
 18. http://www.hdmi.org/manufacturer/hdmi_2_0/hdmi_2_0_faq.aspx
+
+# Glossary
+
+AC - Alternating current
+CCD - Charge-coupled device
+CFA - Colour filter array
+CMOS - Complementary metal-oxide-semiconductor
+CSI - Camera serial interface
+DCI - Digital Cinema Initiatives
+DSLR - Digital single-lens reflex
+DUT - Design under test
+FPGA - Field-programmable gate array
+FPS - Frames per second
+HDL - Hardware description language
+HDMI - High-definition multimedia interface
+MIPI - Mobile Industry Processor Interface
+PCB - Printed circuit board
+QVGA - Quarter VGA
+RAM - Random-access memory
+SoC - System-on-chip
+USB - Universal serial bus
+VGA - Video graphics array
 
 # Summary of progress
 
