@@ -1,0 +1,24 @@
+\documentclass[a4paper,11pt]{report}
+\usepackage{style}
+\input{./tex/glossary.tex}
+
+\title{Design of a Standardised Interface for Image Sensors}
+\author{Michael Wild -- m.a.wild@se12.qmul.ac.uk \and Supervisor: Miles Hansard -- miles.hansard@qmul.ac.uk}
+\date{\today}
+
+\begin{document}
+  \maketitle
+  \input{./tex/abstract.tex}
+
+  \tableofcontents
+  \listoffigures
+  \listoftables
+
+  \input{./tex/introduction.tex}
+  \input{./tex/background.tex}
+  \input{./tex/serial_data_tx.tex}
+
+  \input{./tex/bibliography.tex}
+  \printglossary[type=\acronymtype]
+
+\end{document}
