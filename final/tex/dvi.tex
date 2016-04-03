@@ -1,19 +1,50 @@
 \chapter{Digital Video Interface}
-\gls{dvi} is a video interface which surfaced in 1999. Designed by the \gls{ddwg} as a replacement for \gls{vga}, it was mainly used to display output from a computer's graphics adapter onto a monitor, although it did see some limited use in other entertainment equipment such as TVs and DVD players. Despite its age, the interface has more than enough bandwidth for 1080p RAW video and its relative simplicity makes it an attractive base for transferring image sensor data.
+\gls{dvi} is a video interface which surfaced in 1999. Designed by the \gls{ddwg} as a replacement for \gls{vga}, it was mainly used to display output from a computer's graphics adapter onto a monitor, although it did see some limited use in other entertainment equipment such as televisions and DVD players. Despite its age, the interface has more than enough bandwidth for 1080p RAW video and its relative simplicity makes it an attractive base for transferring image sensor data.
 
 \section{Interface overview}
+
+In \gls{dvi} nomenclature, a \gls{dvi} link is comprised of an input and output video stream, and the corresponding \gls{tmds} circuitry which is used to transmit the video from one side of a link to the other. Figure \ref{fig:dvi_link_overview} illustrates a typical single-link, consisting of a transmitter / receiver pair joined by four serial \gls{tmds} channels. In the standard RGB operating mode, the three colour components (red, green and blue) are separated and transmitted one per channel, with the remaining channel being used to carry the pixel clock. In addition to pixel data, each channel also has two bits for control signals. On the blue channel (channel 0), the control lines are used to carry the horizontal and vertical synchronisation signals needed for data recovery at the receiver. All other control lines are reserved for future use.
 
 \begin{figure}
   \centering
   \includegraphics[width=1\textwidth]{./img/dvi_link_overview.png}\par
 Source: DVI 1.0 Specification
-  \caption{Dual-link \gls{dvi} system}
+  \caption{Single \gls{dvi} link in RGB mode.}
   \label{fig:dvi_link_overview}
 \end{figure}
 
 \subsection{Video format and timing}
-\marginpar{Hsync + Vsync + blanking, 8-bits per-pixel}
+
+Unlike other modern digital video interfaces, \gls{dvi} does not packetise its data for transmission. Instead, it uses a legacy raster scan technique which was originally intended to drive the electron gun inside a \gls{crt} display. While raster scanning is redundant for digital displays, \gls{dvi} opts for this technique in order to ensure backwards compatibility with the \gls{vga} interface, which was originally designed for use with analogue \gls{crt} displays.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=1\textwidth]{./img/raster_scan.png}
+  \caption{Illustration of visible pixels and blanking periods.}
+  \label{fig:raster_scan}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=1\textwidth]{./img/raster_scan.png}
+  \caption{Video timing synchronisation signals used to mark end of line (HSYNC) and end of frame (VSYNC).}
+  \label{fig:video_timing_signals}
+\end{figure}
+
+Figures \ref{fig:raster_scan} illustrate the raster scan video technique. If this image was displayed on a monitor, only the blue 'active video' part would be visible, while the grey 'blanking period' extends beyond the display and thus is not drawn, rather it is used to carry the timing signals in Figure \ref{fig:video_timing_signals}. In an analogue monitor these signals would have been used to position the electron beam, however in modern digital displays the HSYNC (end of line) and VSYNC (end of frame) signals are used to detect the video resolution. A list of common video timings can be found in Table.\marginpar{Need to add a table for this}. Single-link \gls{dvi} requires all devices to support a colour-depth of 24-bits per pixel. Unlike \gls{hdmi}, which supports both RGB and YUV data formats, \gls{dvi} only supports RGB.
+
 \subsection{Physical layer}
+
+\gls{dvi} utilises \gls{tmds} in order to reduce \gls{emi}, improve noise immunity and increase skew tolerance for driving data through longer cables. Although the proof-of-concept presented here utilises a cable to link the sensor module and image processor together, noise immunity and skew tolerance are not particularly useful as a real commercial system would use a board-to-board connector to mate the two systems directly together. As mentioned in the overview, a \gls{tmds} link consists of three completely separate data channels and a clock channel. Because of the colour component separation, all three channels are functionally identical and can operate independently of each other; though the clock channel is required for synchronisation.
+
+Like most other high-speed serial interfaces, \gls{tmds} utilises a line coding scheme in order to ensure low \gls{emi}, better noise immunity and skew tolerance. The function of the \gls{tmds} encoder is to take the parallel 8-bit pixel value and 2-bit control data, and convert them into a 10-bit character which may utilise these attributes. Figure \ref{fig:dvi_link_overview} illustrates how the red, green and blue channels are fed into the corresponding encoders (all of which are functionally identical) to produce three serial streams of 10-bit \gls{tmds} characters. Only pixel data or control data may be transmitted at any one time, and so an additional data input signal is required to determine whether the 10-bit \gls{tmds} character is produced from the pixel data (\texttt{DE = 1}) or the control data (\texttt{DE = 0}). 
+
+In order to reduce the number of transitions (and thus the \gls{emi}), the encoder uses a special algorithm for pixel data which produces characters with no more than five transitions, however control data characters use a different algorithm which can produce over seven transitions, though the relatively short duration of the blanking period ensures this is not an issue. Despite all three channels being referenced to the same pixel clock, there is a high chance of the three channels being out of phase at the receiver as a result of trace-length mismatches and various other factors which introduce signal skewing. For the receiver to function correctly, all input channels need to be phase-aligned. To aid this, the \gls{tmds} encoder produces long runs of similar characters which can be easily detected by the receiver in order to mark character boundaries and align the channels.
+
+\gls{tmds} is a serial protocol, and thus the 10-bit output characters from the encoder are serialised and transmitted alongside a \gls{tmds} reference clock. While increasing the maximum bandwidth, serial transition also reduces cost and complexity, allowing a minimal \gls{dvi} interface to be implemented using only four wires. Unlike some high-speed serial interfaces, the clock does not need to be recovered from the data as it is transmitted alongside it. Every clock cycle the \gls{tmds} transmitter outputs a 10-bit character
+
 \subsection{DDC and EDID}
 
 \section{Required additions for image sensors}
+
+\marginpar{Don't forget to reference this whole section to the DVI spec - once per paragraph}
