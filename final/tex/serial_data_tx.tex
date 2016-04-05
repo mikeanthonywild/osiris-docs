@@ -75,4 +75,19 @@ Licensing requirements play a critical role in the choice of interface. While th
 None of the existing interfaces have everything required for an image sensor interface and so it is essential that the specification allows for some amount of extension in order to accommodate these features. Ideally, the interface should allow for this to be done in such a way so as not to break the interface's specification. Packet-based protocols such as DisplayPort and USB3 Vision are ideal for this because custom packet types which co-exist with the rest of the protocol can be created for these extensions. \marginpar{We need to write down somewhere what additional features we require!}
 
 \subsection{Using \gls{dvi} as the basis for an image sensor interface}
-Despite its age, \gls{dvi} is still a capable interface. The combination of royalty-free licensing, simplicity and bandwidth capabilities make it an ideal choice as the basis for transferring image sensor data. While DisplayPort is arguably more future-proof in terms of bandwidth capabilities and extensibility, it comes at the cost of increased complexity due to the packet-based nature of the protocol. Furthermore, while \gls{DVI} includes blanking periods similar to legacy interfaces such as VGA, this can actually be used to our advantage when extending the interface, as we will see in later sections.
+Despite its age, \gls{dvi} is still a capable interface. The combination of royalty-free licensing, simplicity and bandwidth capabilities make it an ideal choice as the basis for transferring image sensor data. While DisplayPort is arguably more future-proof in terms of bandwidth capabilities and extensibility, it comes at the cost of increased complexity due to the packet-based nature of the protocol. Furthermore, while \gls{dvi} includes blanking periods similar to legacy interfaces such as VGA, this can actually be used to our advantage when extending the interface, as we will see in later sections.
+
+Also don't forget to list the following:
+
+\begin{itemize}
+  \item{Simple - efficient - low protocol overhead}
+  \item{Well-documented}
+  \item{Sufficient bandwidth - TMDS is scalable}
+  \item{Open standard}
+  \item{Can add custom extensions into blanking period without breaking spec}
+  \item{Can use a single channel to remove needfor synchronisation}
+  \item{No complex clock recovery}
+  \item{I2C lines for custom config and firmware updates}
+  \item{EDID to advertise capabilities}
+  \item{Hot plug detection}
+\end{itemize}
