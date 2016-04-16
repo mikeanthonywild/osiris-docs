@@ -92,7 +92,17 @@ The OV7670's video interface is very similar, however some signals are lacking a
 
 A framebuffer is a portion of memory which holds the current frame, allowing the hardware blocks either side to act in complete isolation. Both sides of the link use framebuffers, though their purpose differs. On the receiver side the framebuffer stores each frame before it is written to flash storage. Firmware inside the Zynq \gls{ps} \marginpar{Explain the Zynq PS} can draw to the frame in real-time, adding helpful indicators such as the currently connected sensor module and gridlines to aid the photographer's composition process. On the transmitter side the framebuffer serves a different purpose. A critical flaw in the design of the \gls{dvi} receiver causes the link to break if the incoming pixel clock is less than \SI{40}{\mega\hertz} --- a potential issue because the OV7670's pixel clock is only \SI{12}{\mega\hertz}. To mitigate this, the transmitter sends out duplicate frames, thus bringing the pixel clock up into the region required for correct operation.
 
-The space required to store frames is a direct function of the image resolution. As the OV7670 outputs frames in 640 x 480 resolution, a \SI{307.2}{\kilo\bytes} framebuffer is required. While \glsp{fpga} usually contain a small amount of internal block RAM, there is insufficient space for storing an entire frame. Though its access is significantly more complicated, the Zynq-7000 includes a hard DDR controller which can be utilised to store the frames in external DDR3 memory instead --- the Zybo development board contains \SI{512}{\mega\bytes} of RAM, which is more than sufficient for storing a single frame. Due to the internal architecture of the Zynq-7000, the \
+The space required to store frames is a direct function of the image resolution. As the OV7670 outputs frames in 640 x 480 resolution, a \SI{307.2}{\kilo\bytes} framebuffer is required. While \glsp{fpga} usually contain a small amount of internal block RAM, there is insufficient space for storing an entire frame. Though its access is significantly more complicated, the Zynq-7000 includes a hard DDR controller which can be utilised to store the frames in external DDR3 memory instead --- the Zybo development board contains \SI{512}{\mega\bytes} of RAM, which is more than sufficient for storing a single frame. Due to the internal architecture of the Zynq-7000, the 
+
+\subsection{\texttt{i\_buf\_controller} module}
+
+The \texttt{i_buf_controller} module is a simple shim which writes each line of the video into the linebuffer and triggers interrupts on the \gls{ps} to initiate a \gls{dma} transfer into the DDR framebuffer. Upon detecting the \texttt{vde} signal going high, the input buffer controller starts writing each incoming pixel into the linebuffer. The block RAM can either be configured in standalone mode or for use with an AXI BRAM Controller instance. The block RAM has its own address space (starting at \texttt{0x0000} up to however large the block RAM is), and so an AXI BRAM Controller instance is placed between the block RAM and input AXI CDMA instance (\texttt{i\_axi\_cdma}) to translate between the two address spaces.
+
+As the block RAM is operating in BRAM Controller mode the following options are enabled:
+\begin{itemize}
+  \item 32-bit data width
+  \item 32-bit address width
+  \item Byte addressing
 
 \marginpar{Diagram of internal Zynq arch - access to DDR}
 
