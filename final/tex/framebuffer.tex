@@ -5,7 +5,7 @@
   \centering
   \includegraphics[width=1\textwidth]{./img/framebuffer_block_diagram.png}
   \caption{Block diagram of the framebuffer DMA processor. Image data is stored in a temporary input before being copied to the main framebuffer. A similar configuration on the output allows image data to be modified by the Zynq PS and transmitted.}
-  \label{fig:dma_endianness}
+  \label{fig:framebuffer_block_diagram}
 \end{figure}
 
 A framebuffer is a portion of memory which holds the current frame, allowing the hardware blocks either side to act in complete isolation. Both sides of the link use framebuffers, though their purpose differs. On the receiver side the framebuffer stores each frame before it is written to flash storage. Firmware inside the Zynq \gls{ps} \marginpar{Explain the Zynq PS} can draw to the frame in real-time, adding helpful indicators such as the currently connected sensor module and gridlines to aid the photographer's composition process. On the transmitter side the framebuffer serves a different purpose. A critical flaw in the design of the \gls{dvi} receiver causes the link to break if the incoming pixel clock is less than \SI{40}{\mega\hertz} --- a potential issue because the OV7670's pixel clock is only \SI{12}{\mega\hertz}. To mitigate this, the transmitter sends out duplicate frames, thus bringing the pixel clock up into the region required for correct operation.
@@ -129,7 +129,7 @@ end
 \subsection{AXI CDMA and buffer control firmware}
 Interrupts from the input and output buffer controllers are connected to the \gls{gic} on the \gls{ps} via the \texttt{IRQ\_F2P} line. Each interrupt connected to the \gls{gic} must be initialised individually. To help with this, the function in Listing \ref{lst:interrupt_setup} is used to connect each interrupt to an \gls{isr} and configure it to only trigger on the rising edge. Listing \ref{lst:isr_functions} show the four \glspl{isr} which handle the input and output buffer controller interrupts. \glspl{isr} should generally be kept as short as possible, and so flags are used to indicate to the main loop that a memory transaction is required.
 
-\begin{lstlisting}[caption=[Interrupt setup function], label={lst:interrupt_setup}, language=C]
+\begin{lstlisting}[caption={Interrupt setup function}, label={lst:interrupt_setup}, language=C]
 int create_interrupt(XScuGic *instance_p, u32 int_id, u8 priority, u8 trigger, Xil_InterruptHandler isr, void *callback_ref) {
     int status;
 
