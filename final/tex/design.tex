@@ -1,5 +1,25 @@
 \chapter{Design and Implementation}
 
+\section{System overview}
+
+A block-diagram of the proof-of-concept system is illustrated in Figures \ref{fig:sensor_module_diagram} and \ref{fig:image_processor_diagram}. The system is separated into two parts: the sensor module (consisting of image sensor and encoder FPGA) and the image processor (with the appropriate decoder FPGA, flash storage and viewscreen).
+
+\begin{figure}
+  \centering
+  \includegraphics[width=1\textwidth]{./img/sensor_module_diagram.png}
+  \caption{High-level overview of sensor module.}
+  \label{fig:sensor_module_diagram}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=1\textwidth]{./img/image_processor_diagram.png}
+  \caption{High-level overview of the image processor inside the camera body.}
+  \label{fig:image_processor_diagram}
+\end{figure}
+
+\marginpar{High-level explanation here}
+
 \input{./tex/ov7670.tex}
 \input{./tex/framebuffer.tex}
 \input{./tex/dvi_encoder.tex}
