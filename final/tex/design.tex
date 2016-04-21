@@ -18,16 +18,17 @@ A block-diagram of the proof-of-concept system is illustrated in Figures \ref{fi
   \label{fig:image_processor_diagram}
 \end{figure}
 
-\marginpar{High-level explanation here}
+The flow of data is from left to right and starts at the OV7670 image sensor. A sensor controller block connected to the image sensor configures the internal registers and then starts capturing image data at 30 frames-per-second. Each frame captured is stored in a central framebuffer which resides in off-chip DDR3 RAM on the sensor module board where it can be accessed by a DVI encoder which is constantly working in the background and taking each from to encode it for transmission. The sensor module and image processor boards are connected using a HDMI cable. It is important to note that while a HDMI connector is present on both boards, the pins can be driven to implement whatever custom interface is desired as they are attached directly to the \gls{fpga}.
+
+Each frame that is transmitted over the link is received and decoded by the DVI decoder on the image processor board. Decoded frames are copied into a second framebuffer, again located in off-chip DDR3 RAM. If the shutter release button is pressed then the flash storage manager takes the frame currently residing in the framebuffer and writes it to the SD card. A VGA port on the image processor board can be connected to a viewscreen LCD for real-time image display.
 
 \input{./tex/ov7670.tex}
 \input{./tex/framebuffer.tex}
 \input{./tex/dvi_encoder.tex}
-
-\section{DVI decoder}
+\input{./tex/dvi_decoder.tex}
 \input{./tex/edid.tex}
-\section{Exposure sync subsystem}
+%\section{Shutter synchronisation subsystem}
 \input{./tex/flash.tex}
-\section{Viewscreen controller}
-\section{Test pattern generator}
-\section{Sequence detector}
+%\section{Viewscreen controller}
+%\section{Test pattern generator}
+%\section{Sequence detector}
