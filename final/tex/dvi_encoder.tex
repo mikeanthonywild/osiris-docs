@@ -7,12 +7,13 @@ The \gls{dvi} encoder and decoder presented here are based heavily upon a refere
 \subsection{\texttt{rgb2dvi} module overview}
 \begin{figure}
   \centering
-  \includegraphics[width=1\textwidth]{./img/rgb2dvi.png}
-  \caption{High-level overview of the image processor inside the camera body.}
-  \label{fig:image_processor_diagram}
+  \includegraphics[width=1\textwidth]{./img/rgb2dvi.png}\par
+  Source: \url{https://github.com/DigilentInc/vivado-library/blob/master/ip/rgb2dvi_v1_2/docs/rgb2dvi_v1_2.pdf}
+  \caption{Block diagram of the DVI encoder.}
+  \label{fig:rgb2dvi}
 \end{figure}
 
-The \gls{dvi} encoder takes a 24-bit wide pixel data bus as the main input, splitting off into three 8-bit channels for Red, Green and Blue. As the application requires a RAW pixel format instead of RGB we must deviate from the \gls{dvi} specification slightly by combining all channels into one large input, however internally they are still treated separately. Only a single channel (Blue) is used for data in the proof-of-concept as the OV7670 only has an 8-bit \gls{adc}, however the Green channel is also used to transmit the control signals related to flash and shutter synchronisation. Combining all channels gives a maximum pixel depth of 24-bits --- the image sensor on a professional \gls{dslr} will typical have a 12--14-bit \gls{adc}, so 24-bits is more than sufficient. Alongside the pixel bus are the regular video timing and synchronisation signals used elsewhere in the design. In addition to these timing signals, a \texttt{shutter\_sync} signal has been added 
+The \gls{dvi} encoder takes a 24-bit wide pixel data bus as the main input, splitting off into three 8-bit channels for Red, Green and Blue. As the application requires a RAW pixel format instead of RGB we must deviate from the \gls{dvi} specification slightly by combining all channels into one large input, however internally they are still treated separately. Only a single channel (Blue) is used for data in the proof-of-concept as the OV7670 only has an 8-bit \gls{adc}, however the Green channel is also used to transmit the control signals related to flash and shutter synchronisation. Combining all channels gives a maximum pixel depth of 24-bits --- the image sensor on a professional \gls{dslr} will typical have a 12--14-bit \gls{adc}, so 24-bits is more than sufficient. Alongside the pixel bus are the regular video timing and synchronisation signals used elsewhere in the design. In addition to these timing signals, a \texttt{shutter\_sync} signal has been added which fires just before each new frame so that the receiver side can sequence a mechanical shutter or flash if present. Much like the video timing signals, the shutter synchronisation signal is sent via the control bits on the Green channel.
 
 Internally the \gls{dvi} encoder instantiates three identical \texttt{TMDS\_encoder} blocks and assigns each one to a channel. Immediately after each \gls{tmds} encoder is an \texttt{OutputSERDES} block which is what actually drives the \gls{tmds}-encoded data across the interface. Listing \ref{lst:encoder_instances} shows how the \texttt{generate} statement is used to create three identical instances of the \texttt{TMDS\_encoder} and \texttt{OutputSERDES} blocks.
 

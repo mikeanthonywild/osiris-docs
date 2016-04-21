@@ -16,20 +16,26 @@ In chapter 1....
 
 \subsection{Embedded Linux}
 
-Non-blocking file writes!
+Xilinx's standalone FAT filesystem drivers, while sufficient for capturing still images from the low-resolution OV7670, lack the performance necessary for real-time high-definition video storage. The Linux kernel used for testing flash write speeds showed that the SD card and SDIO peripheral controller are capable of much higher speeds when not bottlenecked by slow filesystem drivers. Linux was considered for the base of the project, however it was rejected on the grounds that the memory protection would add too much complexity, as any interaction with the \gls{pl} would require low-level drivers to be written. While this is an undesirable hurdle for a proof-of-concept system, writing proper drivers for all \gls{pl}--\gls{ps} interaction would greatly enhance the reliability as low-level code would be prevented from stamping over other---unrelated, but equally mission-critical---code.
+
+Using Linux would also open up access to powerful image processing libraries such as OpenCV (\url{http://opencv.org/}) which could be used to enhance the viewscreen monitor with real-time image processing. Currently the viewscreen displays a greyscale Bayer image from the same unmodified framebuffer which is used for capture and flash storage. OpenCV could be used to de-mosaic the framebuffer in real-time to send to the viewscreen so the user has a full-colour preview to aid the composition process.
+
+In conjunction with transitioning the firmware over to embedded Linux, a high-speed storage interface such as SATA could be added to support seamless capture of full-HD RAW video, which requires a substantially higher read speed. 
 
 \subsection{Camera control}
 
-Exposure, start, stop
+As soon as the sensor module board is powered on the \gls{fpga} starts capturing data continuously. This is fine for video capture, however stills photography requires a much tighter control over when image exposure occurs, as the matter of milliseconds between consecutive frames when capturing continuously can make all the difference --- especially in high-speed photography which requires precise triggering. As the sensor module and camera body share a communications channel via \gls{ddc}, the sensor module can be made to trigger from the camera body. Inside the \gls{dvi} encoder on the sensor module are a set of registers which can be exposed over \gls{ddc}. The register set could be extended to include registers for starting and stopping capture. Although I\textsuperscript{2}C is a relatively slow interface in terms of data throughput, the latency is sufficient that it could provide quite an accurate trigger mechanism.
 
-\subsection{High-speed storage}
-
-SATA
+For the proof-of-concept the OV7670 image sensor was configured to perform automatic exposure, whereby the image sensor measures the incoming light and adjusts its exposure time to produce a well-balanced image, compensating for too much or too little light. Shutter speed (and by extension exposure time) is commonly adjusted to achieve a specific look; long exposures, for example, produce blur which emphasises any motion in the image. In a proper camera it is very important that the user has full control over the exact exposure time in order to get certain shots. The \gls{ddc} registers could be extended to expose these additional parameters.
 
 \subsection{Custom PCBs}
+
+The proof-of-concept system presented here is simply that --- a proof of concept. While the Digilent Zybo development boards accelerated the prototyping phase, their bulk and awkward placement of connectors make them ill-suited for a compact camera form-factor. Xilinx has a wealth of reference material detailing developing custom \glspl{pcb} for their \gls{fpga} parts, which could be used to spin a more compact prototype \gls{pcb} to be fit inside a protective housing. Miniaturising the design would make it considerably more portable, thus it could be used outside and effectively tested in a real-world environment.
 
 \subsection{Stability over wide range of resolutions}
 
 Use constant pixel clock
 
 \section{Conclusion}
+
+DVI is not effective!
