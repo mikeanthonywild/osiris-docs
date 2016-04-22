@@ -34,7 +34,9 @@ The proof-of-concept system presented here is simply that --- a proof of concept
 
 \subsection{Stability over wide range of resolutions}
 
-Use constant pixel clock
+One of the characteristics of the adopted \gls{dvi} interface is a variable-frequency pixel clock. Unlike packetised protocols (such as Ethernet) which always operate at their maximum rate regardless of the data being sent, the \gls{dvi} line rate is directly proportional to the number of pixels being transmitted. While this simplifies some aspects of the design, it adds significant complications to the clock recovery and phase alignment logic --- two parts which are crucial to achieving maximum performance. Future improvements should test the feasibility of replacing \gls{dvi} with a fixed-rate, packet-based protocol similar to \gls{mipi}. Fixing the \gls{serdes} clock frequency would simplify the clock recovery logic as the input clock is known ahead of time, thus the exact \gls{pll} parameters can be chosen such that the \gls{vco} is safely within its operational range.
+
+Choosing a packetised interfacing of course has the additional overhead of a packet protocol, which would take significant re-engineering of the existing work. The flexibility from a packetised interface would outweigh the disadvantages as it would allow for multiple different packet types which makes adding custom image sensor extensions a lot easier.
 
 \section{Conclusion}
 

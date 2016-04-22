@@ -8,7 +8,7 @@
   \label{fig:framebuffer_block_diagram}
 \end{figure}
 
-A framebuffer is a portion of memory which holds the current frame, allowing the hardware blocks either side to act in complete isolation. Both sides of the link use framebuffers, though their purpose differs. On the receiver side the framebuffer stores each frame before it is written to flash storage. Firmware inside the Zynq \gls{ps} \marginpar{Explain the Zynq PS} can draw to the frame in real-time, adding helpful indicators such as the currently connected sensor module and gridlines to aid the photographer's composition process. On the transmitter side the framebuffer serves a different purpose. A critical flaw in the design of the \gls{dvi} receiver causes the link to break if the incoming pixel clock is less than \SI{40}{\mega\hertz} --- a potential issue because the OV7670's pixel clock is only \SI{12}{\mega\hertz}. To mitigate this, the transmitter sends out duplicate frames, thus bringing the pixel clock up into the region required for correct operation.
+A framebuffer is a portion of memory which holds the current frame, allowing the hardware blocks either side to act in complete isolation. Both sides of the link use framebuffers, though their purpose differs. On the receiver side the framebuffer stores each frame before it is written to flash storage. Firmware inside the Zynq \gls{ps} \marginpar{Explain the Zynq PS} can draw to the frame in real-time, adding helpful indicators such as the currently connected sensor module and gridlines to aid the photographer's composition process. On the transmitter side the framebuffer serves a different purpose. A critical flaw in the design of the \gls{dvi} receiver causes the link to break if the incoming pixel clock is less than \SI{40}{\mega\hertz} --- a potential issue because the OV7670's pixel clock is only \SI{12}{\mega\hertz}. To mitigate this, the transmitter sends out duplicate frames in order to artificially inflate the data rate, thus bringing the pixel clock up into the region required for correct operation.
 
 The space required to store frames is a direct function of the image resolution. As the OV7670 outputs frames in 640 x 480 resolution, a \SI{307.2}{\kilo\byte} framebuffer is required. While \glspl{fpga} usually contain a small amount of internal block RAM, there is insufficient space for storing an entire frame. Though its access is significantly more complicated, the Zynq-7000 includes a hard DDR controller which can be utilised to store the frames in external DDR3 memory instead --- the Zybo development board contains \SI{512}{\mega\byte} of RAM, which is more than sufficient for storing a single frame.
 
@@ -89,10 +89,10 @@ FC00\_0000 to FDFF\_FFFF                  & Quad-SPI     &         & Quad-SPI   
 \subsection{Linebuffers}
 Due to the high complexity of the DDR controller, memory operations are not instantaneous and have non-deterministic latencies, thus an additional buffer must be placed between the incoming frames from the \texttt{ov7670\_capture} block and framebuffer, and a second between the framebuffer and the \texttt{rgb2dvi} module.
 
-Each line of the input frame is written into a \SI{2048}{\kilo\bit} linebuffer pixel-by-pixel. The block RAM for each linebuffer can either be configured in standalone mode or for use with an AXI BRAM Controller instance. The block RAM has its own address space (starting at \texttt{0x0000} up to however large the block RAM is), and so an AXI BRAM Controller instance is placed between the block RAM and input AXI CDMA instance (\texttt{i\_axi\_cdma}) to translate between the two address spaces. As the block RAM is operating in BRAM Controller mode the following Block Memory Generator configuration is used:
+Each line of the input frame is written into a \SI{2048}{\kilo\byte} linebuffer pixel-by-pixel. The block RAM for each linebuffer can either be configured in standalone mode or for use with an AXI BRAM Controller instance. The block RAM has its own address space (starting at \texttt{0x0000} up to however large the block RAM is), and so an AXI BRAM Controller instance is placed between the block RAM and input AXI CDMA instance (\texttt{i\_axi\_cdma}) to translate between the two address spaces. As the block RAM is operating in BRAM Controller mode the following Block Memory Generator configuration is used:
 \begin{itemize}
   \item 32-bit data width
-  \item 2048-bit data depth
+  \item 2048-byte data depth
   \item 32-bit address width
   \item Byte addressing
 \end{itemize}
@@ -127,7 +127,7 @@ end
 \end{lstlisting}
 
 \subsection{AXI CDMA and buffer control firmware}
-Interrupts from the input and output buffer controllers are connected to the \gls{gic} on the \gls{ps} via the \texttt{IRQ\_F2P} line. Each interrupt connected to the \gls{gic} must be initialised individually. To help with this, the function in Listing \ref{lst:interrupt_setup} is used to connect each interrupt to an \gls{isr} and configure it to only trigger on the rising edge. Listing \ref{lst:isr_functions} show the four \glspl{isr} which handle the input and output buffer controller interrupts. \glspl{isr} should generally be kept as short as possible, and so flags are used to indicate to the main loop that a memory transaction is required.
+Interrupts from the input and output buffer controllers are connected to the \gls{gic} on the \gls{ps} via the \texttt{IRQ\_F2P} line. Each interrupt connected to the \gls{gic} must be initialised individually. To help with this, the function in Listing \ref{lst:interrupt_setup} is used to connect each interrupt to an \gls{isr} and configure it to only trigger on the rising edge. Listing \ref{lst:isr_functions} shows the four \glspl{isr} which handle the input and output buffer controller interrupts. \glspl{isr} should generally be kept as short as possible, and so flags are used to indicate to the main loop that a memory transaction is required.
 
 \begin{lstlisting}[caption={Interrupt setup function}, label={lst:interrupt_setup}, language=C]
 int create_interrupt(XScuGic *instance_p, u32 int_id, u8 priority, u8 trigger, Xil_InterruptHandler isr, void *callback_ref) {
