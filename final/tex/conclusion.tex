@@ -2,15 +2,18 @@
 
 
 
- \marginpar{NO CAMERA CONTROL (start record... - master -> slave control channel?)!}
-
-  \marginpar{NO PICTURES OF CAMERA!}
-
-  \marginpar{NO PICTURES FROM CAMERA!}
-
 \section{Summary}
+In Chapter 1 we introduced the problem of existing cameras not being full-modular because of their fixed image sensors, and suggested that the problem was exasperated by the fact that image sensor \glspl{ic} implement their own proprietary interfaces, preventing interoperability. Finally we proposed that to be able to interface the camera with any image sensor, a piece of glue logic would be required to translate from the image sensor's proprietary interface to the standardised interface presented here.
 
-In chapter 1....
+The background concepts needed to understand the design of this standardised interface were explained in Chapter 2. The fundamental workings of an \gls{fpga} were conveyed, and we highlighted their suitability due to reconfigurability and high throughput. We also briefly detail how \glspl{cfa} and demosaicing are used to generate full-colour images from RAW image data.
+
+In Chapter 3 we detailed some of the problems associated with high-speed data transmission and explored the industry shift towards serial interfaces and the various techniques and design considerations that go with it. Leading on from this, we examined several existing high-speed video interfaces and summarised their suitability as an image sensor interface, highlighting key shortcomings in several related to licensing requirements and complexity. Finally we settled on \gls{dvi}, citing a combination of attractive open licensing and simplicity.
+
+Having justified basing the sensor interface on \gls{dvi}, we thoroughly explained the \gls{dvi} 1.0 specification in Chapter 4. After detailing the format of the data and how it is transmitted, we went on to suggest various additions, such as using \gls{edid} to store sensor capability information, which would make the interface better suited for image sensors.
+
+Chapter 5 introduced the key components of the proof-of-concept system and discussed their design and the various hurdles encountered. 
+
+Finally, in Chapter 6 we took the design discussed prior and tested various aspects such as reliable throughput and image integrity and concluded that the interface was mainly suitable for use with image sensors, but had more general issues which increased the complexity of implementation.
 
 \section{Future work}
 
@@ -34,10 +37,12 @@ The proof-of-concept system presented here is simply that --- a proof of concept
 
 \subsection{Stability over wide range of resolutions}
 
-One of the characteristics of the adopted \gls{dvi} interface is a variable-frequency pixel clock. Unlike packetised protocols (such as Ethernet) which always operate at their maximum rate regardless of the data being sent, the \gls{dvi} line rate is directly proportional to the number of pixels being transmitted. While this simplifies some aspects of the design, it adds significant complications to the clock recovery and phase alignment logic --- two parts which are crucial to achieving maximum performance. Future improvements should test the feasibility of replacing \gls{dvi} with a fixed-rate, packet-based protocol similar to \gls{mipi}. Fixing the \gls{serdes} clock frequency would simplify the clock recovery logic as the input clock is known ahead of time, thus the exact \gls{pll} parameters can be chosen such that the \gls{vco} is safely within its operational range.
+One of the characteristics of the adopted \gls{dvi} interface is a variable-frequency pixel clock. Unlike packetised protocols (such as Ethernet) which always operate at their maximum rate regardless of the data being sent, the \gls{dvi} line rate is directly proportional to the number of pixels being transmitted. While this simplifies some aspects of the design, it adds significant complications to the clock recovery and phase alignment logic --- two parts which are crucial to achieving maximum performance. Future improvements should test the feasibility of replacing \gls{dvi} with a fixed-rate, packet-based protocol similar to \gls{mipi}. Fixing the \gls{serdes} clock frequency would simplify the clock recovery logic as the input clock is known ahead of time, thus the exact \gls{pll} parameters can be chosen such that the \gls{vco} is safely within its operational range. Choosing a packetised interfacing of course has the additional overhead of a packet protocol, which would take significant re-engineering of the existing work. The flexibility from a packetised interface would outweigh the disadvantages as it would allow for multiple different packet types which makes adding custom image sensor extensions a lot easier.
 
-Choosing a packetised interfacing of course has the additional overhead of a packet protocol, which would take significant re-engineering of the existing work. The flexibility from a packetised interface would outweigh the disadvantages as it would allow for multiple different packet types which makes adding custom image sensor extensions a lot easier.
+Another alternative would be to retain the \gls{dvi} interface, but use the highest overall resolution permitted by the link bandwidth. Instead of varying the pixel clock, the blanking period could be adjusted to ensure a constant overall pixel count regardless of the image sensor resolution, thus fixing the pixel clock at a single frequency.
 
 \section{Conclusion}
 
-DVI is not effective!
+While the proof-of-concept system successfully demonstrates that \gls{dvi} can be used as the basis for a standardised image sensor interface, it highlighted some key shortcomings that raise questions as to its suitability, primarily with regards to successfully decoding a wide range of video resolutions. Certain workarounds, like varying the blanking period, are suggested which would resolve some of these issues. Despite these set-backs, a working system able to maintain \SI{2.99}{\giga\bit\per\second} was developed, proving that \gls{dvi} certainly has its merits. 
+
+Ultimately, a fully-modular camera is something which depends heavily on economies of scale to work --- far outside the scope of this paper. Given that the interface is open however, and the source for the design is public, it is perfectly possible that the project can blossom with community involvement and perhaps one day produce a camera which is free from planned obsolescence.

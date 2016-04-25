@@ -59,7 +59,6 @@ The \texttt{ov7670\_controller} module contains a 'dumb' I\textsuperscript{2}C c
 \end{table}
 
 \subsection{\texttt{ov7670\_capture} module}
-\marginpar{Code snippets required!}
 Given that the purpose of a standardised image sensor interface is to provide video data in a format which can be paired with any image sensor device, it stands to reason that the data must be converted to a different format at some point. The task of the \texttt{ov7670\_capture} module is to capture pixels from the OV7670's parallel video interface and pass them on to the \texttt{i\_buf\_controller} module detailed in Section \ref{sec:framebuffer_dma} for storage in the framebuffer where they are processed by the DVI encoder. Originally the \texttt{ov7670\_capture} module had direct control over the memory, however this functionality was moved to the \texttt{i\_buf\_controller} module, reducing the \texttt{ov7670\_capture} to a passthrough or level conversion device.
 
 To transfer frames between different blocks inside the \gls{fpga}, uses the standard VESA video interface: a pixel clock to signal when a new pixel is available, parallel data for pixels, horizontal sync for signalling end-of-line, vertical sync for signalling end-of-frame, and additionally a data valid signal which marks exactly when the active video period begins---greatly simplifying the design. Without this signal a timing recovery block would be needed to measure the frequency of \texttt{vsync} and \texttt{hsync} pulses to determine the resolution of the video and thus where the active video period begins and ends.
@@ -77,8 +76,3 @@ The OV7670's video interface is very similar, however some signals are lacking a
   \caption{The OV7670 video interface is very similar to the VESA interface, however minor signal conversions are required.}
   \label{table:ov7670_video_interface}
 \end{table}
-
-\marginpar{Write about shutter\_sync generation}
-
-
-\marginpar{NEEDS A PICTURE OF OV7670 MODULE!}

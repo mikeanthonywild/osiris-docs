@@ -1,8 +1,13 @@
 \begin{abstract}
-Don't forget to fill this!!!!!
+Professional digital cameras allow several key components, like lenses, to be interchanged to increase versatility, thus expanding the useful lifetime of the device and potentially reducing cost to the end user. Arguably the most important component of the camera, the image sensor which captures the scene is fixed --- users wanting higher image resolution, or to capture non-visible parts of the spectrum, are left with no other choice than to buy an entirely new camera. Interchangeable image sensors are the crucial missing piece for the realisation of a fully-modular camera system.
+
+A standardised interface based on Digital Video Interface (DVI) is presented which allows frames to be captured from any image sensor through a translation layer in a field-programmable gate array (FPGA). Using a test pattern generator in place of an image sensor, a rigorous soak test is conducted to demonstrate transmitting a video stream of 1920 pixels by 1080 pixels (\textit{1080p}) over the interface at \SI{2.99}{\giga\bit\per\second} with 100\% reliability during a twelve-hour period. In addition, a prototype camera is developed using two Xilinx Zynq FPGAs and an Omnivision OV7670 image sensor to demonstrate the suitability and real-world performance of the interface by capturing frames and storing them on an SD card.
+
+While the interface presented here is capable of the \SI{2.99}{\giga\bit\per\second} throughput required for 1080p video, the variability of throughput as a function of image resolution causes synchronisation problems at the receiver and requires the system be pre-emptively configured for a specific resolution.
+
 \end{abstract}
 
 \renewcommand{\abstractname}{Acknowledgements}
 \begin{abstract}
-I would like to extend my thanks to Miles Hansard for giving me the freedom to propose and pursue my own project.
+I would like to extend my thanks to Miles Hansard for allowing me the freedom to propose and pursue my own project.
 \end{abstract}
