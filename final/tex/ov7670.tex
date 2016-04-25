@@ -14,14 +14,13 @@ Figure \ref{fig:ov7670_block_diagram} outlines the key functional blocks inside 
 
 \begin{figure}
   \centering
-  \includegraphics[width=1\textwidth]{./img/ov7670_timing.png}\par
-Source: Omnivision OV7670/OV7171 1.0 Specification
-  \caption{OV7670 timing diagram. The \texttt{VSYNC} signal pulses shortly before the start of each frame. \texttt{HREF} is high to indicate the data on output \texttt{D} is valid.}
+  \includegraphics[width=1\textwidth]{./img/ov7670_timing.png}
+  \caption{OV7670 timing diagram. The \texttt{VSYNC} signal pulses shortly before the start of each frame. \texttt{HREF} is high to indicate the data on output \texttt{D} is valid \cite{ov7670_datasheet}.}
   \label{fig:ov7670_timing}
 \end{figure}
 
 \subsection{\texttt{ov7670\_controller} module}
-The OV7670 contains a set of internal registers to configure all aspects of its operation. In order to set the output format to 640 x 480 RAW the correct registers must be set using the \gls{sccb} protocol --- a direct clone of I\textsuperscript{2}C, renamed for licensing / IP reasons. As we are only interested in writing to specific registers there is no need to implement bidirectional I\textsuperscript{2}C communication. To drive the \gls{sccb} interface the \texttt{ov7670\_controller} module utilises I\textsuperscript{2}C code written by Mike Fields (http://hamsterworks.co.nz/mediawiki/index.php/Zedboard\_OV7670). Table \ref{table:ov7670_register_settings} lists the register settings used to configure the OV7670 for 640 x 480 RAW output at 30 \gls{fps}. On powerup, the \texttt{ov7670\_controller} module performs the following actions for each register it configures:
+The OV7670 contains a set of internal registers to configure all aspects of its operation. In order to set the output format to 640 x 480 RAW the correct registers must be set using the \gls{sccb} protocol --- a direct clone of I\textsuperscript{2}C, renamed for licensing / IP reasons. As we are only interested in writing to specific registers there is no need to implement bidirectional I\textsuperscript{2}C communication. To drive the \gls{sccb} interface the \texttt{ov7670\_controller} module utilises I\textsuperscript{2}C code written by Mike Fields \cite{hamsterworks}. Table \ref{table:ov7670_register_settings} lists the register settings used to configure the OV7670 for 640x480 RAW output at 30 \gls{fps}. On powerup, the \texttt{ov7670\_controller} module performs the following actions for each register it configures:
 
 \begin{enumerate}
     \item Pull \texttt{SDA} low to signal master is about to send

@@ -4,8 +4,7 @@
 \begin{figure}
   \centering
   \includegraphics[width=1\textwidth]{./img/dvi2rgb.png}\par
-  Source: \url{https://github.com/DigilentInc/vivado-library/blob/master/ip/dvi2rgb_v1_5/docs/dvi2rgb_v1_5.pdf}
-  \caption{Block diagram of the DVI decoder.}
+  \caption{Block diagram of the DVI decoder \cite{dvi2rgb}.}
   \label{fig:dvi2rgb}
 \end{figure}
 
@@ -16,13 +15,12 @@ As the system is source-synchronous, the \gls{dvi} clock channel is used to driv
 
 \begin{figure}
   \centering
-  \includegraphics[width=1\textwidth]{./img/clock_recovery.png}\par
-  Source: \url{https://github.com/DigilentInc/vivado-library/blob/master/ip/dvi2rgb_v1_5/docs/dvi2rgb_v1_5.pdf}
-  \caption{Clock recovery overview.}
+  \includegraphics[width=1\textwidth]{./img/clock_recovery.png}
+  \caption{Clock recovery overview \cite{dvi2rgb}.}
   \label{fig:clock_recovery}
 \end{figure}
 
-Inside the \gls{pll} a \gls{vco} is used is to generate an internal clock which can be varied by the feedback loop until it is locked to the reference clock \texttt{TMDS\_Clk}. The \gls{vco} operates at a frequency of \(FVCO = FIN * MULT_F\), meaning for an input \texttt{PixelClk} of \SI{12}{\mega\hertz} (as is the case with the OV7670), the \gls{vco} would oscillate at \SI{60}{\mega\hertz} due to the x5 multiplier. Unfortunately the \gls{vco} has a limited operating range between \SI{600}{\mega\hertz} and \SI{1200}{\mega\hertz} (\url{http://www.xilinx.com/support/documentation/data_sheets/ds187-XC7Z010-XC7Z020-Data-Sheet.pdf}), to work with a \SI{12}{\mega\hertz} reference clock, the multiplier would need to be set to 50 to bring it up into the correct operating range, and then the output clock would need dividing by 10 to restore the 1:5 input / output ratio.
+Inside the \gls{pll} a \gls{vco} is used is to generate an internal clock which can be varied by the feedback loop until it is locked to the reference clock \texttt{TMDS\_Clk}. The \gls{vco} operates at a frequency of \(FVCO = FIN * MULT_F\), meaning for an input \texttt{PixelClk} of \SI{12}{\mega\hertz} (as is the case with the OV7670), the \gls{vco} would oscillate at \SI{60}{\mega\hertz} due to the x5 multiplier. Unfortunately the \gls{vco} has a limited operating range between \SI{600}{\mega\hertz} and \SI{1200}{\mega\hertz}, to work with a \SI{12}{\mega\hertz} reference clock, the multiplier would need to be set to 50 to bring it up into the correct operating range, and then the output clock would need dividing by 10 to restore the 1:5 input / output ratio \cite{xilinx:ds187}.
 
 Using the simple Python script in Listing \ref{lst:pll_calc} to naively search through the entire parameter space, no single set of PLL parameters will satisfy the full range of input frequencies while operating within the \gls{vco} limits. This means that the input frequency must be known prior to synthesis so the correct \gls{pll} parameters can be set. However, it is not uncommon for manufacturers to be conservative with their limits, and it happens that the \gls{vco} can operate far below the specified limits --- all of the tests performed were done with the gls{pll} parameters set for a \texttt{PixelClk} of \SI{148.5}{\mega\hertz}, despite the actual input being \SI{50}{\mega\hertz}. 
 
@@ -65,15 +63,14 @@ for divclk in DIVCLK_DIVIDE:
 
 \section{Deserialisation}
 
-Much like the \texttt{rgb2dvi} module, deserialisation is done by chaining together two \texttt{ISERDESE2} primitives in a cascaded 1:10 DDR topology. Unlike the transmitter, the receiver requires an additional synchronisation step to re-align the three channels with the clock channel, as they may be out-of-phase by the time they reach the receiver. To do this a 32-tap delay line \texttt{IDELAYE2} primitive is inserted in front of each \texttt{ISERDESE2} primitives. Because transistors take a finite period of time to drive the line from low to high (\textit{rise-time}) or high to low (\textit{fall-time}), it is crucial that the signal is sampled at the correct time to avoid sampling the transition point. Figure \ref{fig:eye_digram} shows how an eye opening forms when successive signals are repeatedly overlaid to form an eye diagram. As jitter increases, the lines become thicker and the signal is stable for less time. The basic premise is to increment the delay until we find the eye opening, which provides the best place to sample the signal. The \gls{tmds} encoder sends a large string of successive control tokens during the blanking period. As the value of the control tokens is fixed, we can keep adjusting the delay increments until we sample a value which matches the 10-bit control token we expect during the blanking period. Each tap only adds a \SI{78}{\pico\second} delay, which is only enough to shift between a bit or two. To shift between entire characters (10-bits) in order to find the character boundaries requires a much greater delay, which is done using the \textit{bitslip} control inside the \texttt{ISERDESE2} primitive. The \texttt{PhaseAlign} and \texttt{ChannelBond} modules control a state machine which sequences the delay increments to ensure all three channels are aligned at the start of each blanking period.
+Much like the \texttt{rgb2dvi} module, deserialisation is done by chaining together two \texttt{ISERDESE2} primitives in a cascaded 1:10 DDR topology. Unlike the transmitter, the receiver requires an additional synchronisation step to re-align the three channels with the clock channel, as they may be out-of-phase by the time they reach the receiver. To do this a 32-tap delay line \texttt{IDELAYE2} primitive is inserted in front of each \texttt{ISERDESE2} primitives. Because transistors take a finite period of time to drive the line from low to high (\textit{rise-time}) or high to low (\textit{fall-time}), it is crucial that the signal is sampled at the correct time to avoid sampling the transition point. Figure \ref{fig:eye_diagram} shows how an eye opening forms when successive signals are repeatedly overlaid to form an eye diagram. As jitter increases, the lines become thicker and the signal is stable for less time. The basic premise is to increment the delay until we find the eye opening, which provides the best place to sample the signal. The \gls{tmds} encoder sends a large string of successive control tokens during the blanking period. As the value of the control tokens is fixed, we can keep adjusting the delay increments until we sample a value which matches the 10-bit control token we expect during the blanking period. Each tap only adds a \SI{78}{\pico\second} delay, which is only enough to shift between a bit or two. To shift between entire characters (10-bits) in order to find the character boundaries requires a much greater delay, which is done using the \textit{bitslip} control inside the \texttt{ISERDESE2} primitive. The \texttt{PhaseAlign} and \texttt{ChannelBond} modules control a state machine which sequences the delay increments to ensure all three channels are aligned at the start of each blanking period.
 
 A critical issue occurs when the input \texttt{PixelClk} frequency is below \SI{40}{\mega\hertz}, which corresponds to the maximum \SI{78}{\pico\second} delay of the delay line. With the \SI{12}{\mega\hertz} pixel clock from the OV7670, the clock period is so long that it is possible to exhaust all of the delay taps without finding stable zone inside the eye. To rectify this, the incoming pixel clock must be boosted to above \SI{40}{\mega\hertz} by injecting artificial duplicate frames at the transmitter in order to allow the eye opening to be found correctly.
 
 \begin{figure}
   \centering
-  \includegraphics[width=1\textwidth]{./img/eye_diagram.jpg}\par
-  Source: \url{http://wl.altera.com/devices/fpga/stratix-fpgas/stratix-ii/stratix-ii-gx/overview/s2gx-rollout.html}
-  \caption{\gls{serdes} eye diagram.}
+  \includegraphics[width=1\textwidth]{./img/eye_diagram.jpg}
+  \caption{\gls{serdes} eye diagram \cite{eye_diagram}.}
   \label{fig:eye_diagram}
 \end{figure}
 

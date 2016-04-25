@@ -7,9 +7,8 @@ The \gls{dvi} encoder and decoder presented here are based heavily upon a refere
 \subsection{\texttt{rgb2dvi} module overview}
 \begin{figure}
   \centering
-  \includegraphics[width=1\textwidth]{./img/rgb2dvi.png}\par
-  Source: \url{https://github.com/DigilentInc/vivado-library/blob/master/ip/rgb2dvi_v1_2/docs/rgb2dvi_v1_2.pdf}
-  \caption{Block diagram of the DVI encoder.}
+  \includegraphics[width=1\textwidth]{./img/rgb2dvi.png}
+  \caption{Block diagram of the DVI encoder \cite{rgb2dvi}.}
   \label{fig:rgb2dvi}
 \end{figure}
 
@@ -47,7 +46,7 @@ end generate DataEncoders;
 \subsection{TMDS encoding}
 As covered in the section on the \gls{dvi} interface, \gls{tmds} encoding is utilised in order to minimise data transitions (and thus \gls{emi}) and provide a \gls{dc} balance, which it does by mapping each 8-bit input to a unique 10-bit \gls{tmds} character.
 
-The flowchart in Figure \ref{fig:tmds_encoding_algorithm} outlines the algorithm used for \gls{tmds} encoding. The notation is as follows (\url{https://web.archive.org/web/20120521030851/http://www.ddwg.org/lib/dvi_10.pdf}):
+The flowchart in Figure \ref{fig:tmds_encoding_algorithm} outlines the algorithm used for \gls{tmds} encoding. The notation is as follows \cite{dvi_spec}:
 \begin{itemize}
     \item \texttt{D C0 C1 DE}: The input set of the encoder. D is an 8-bit pixel data value, C0 and C1 are the two control bits and DE indicates whether the data is valid.
     \item \texttt{cnt}: This register indicates the disparity of the data stream. A value \texttt{1} in the bit stream will increment the counter, and a \texttt{0} will decrement it. \texttt{cnt(t-1)} refers to the register value for the previous bit of data, and \texttt{cnt(t)} is the register value for the current bit of input data.
@@ -151,13 +150,12 @@ The stage of the pipeline clocks the intermediate values into an output register
 
 Originally written in VHDL, the serialiser code was re-written in Verilog as part of this project. To obtain the highest data rates that the \gls{fpga} is capable of it is necessary to use Xilinx's OSERDESE2 primitives, which take the 10-bit output characters from the \gls{tmds} encoder and two clocks (one parallel clock and a serial higher serial clock) and then serialises them into a single-bit high-speed output stream. The OSERDESE2 primitive only has an 8-bit input which is too narrow for the 10-bit \gls{tmds} output. To achieve the 10:1 serialisation ratio required, two OSERDESE2 primitives operating in \gls{ddr} mode must be chained together as in Figure \ref{fig:10_1_serdes}. The inputs to the OSERDESE2 primitives are swapped as \gls{dvi} sends the least significant bit first, whereas the OSERDESE2 primitives send \texttt{D1} first.
 
-When configured as a cascaded 10:1 \gls{ddr} topology the OSERDESE2 primitive has an output latency of 5 clock cycles (\url{http://www.xilinx.com/support/documentation/user_guides/ug471_7Series_SelectIO.pdf}). To ensure that the \gls{tmds} clock channel is correctly aligned with the data channels it is also run through a serialiser, adding 5 cycles of latency to bring it back in line with the rest of the data.
+When configured as a cascaded 10:1 \gls{ddr} topology the OSERDESE2 primitive has an output latency of 5 clock cycles \cite{xilinx:ug471}. To ensure that the \gls{tmds} clock channel is correctly aligned with the data channels it is also run through a serialiser, adding 5 cycles of latency to bring it back in line with the rest of the data.
 
 \begin{figure}
   \centering
-  \includegraphics[width=1\textwidth]{./img/10_1_serdes.png}\par
-Source: \url{http://www.xilinx.com/support/documentation/user_guides/ug471_7Series_SelectIO.pdf}
-  \caption{10:1 serialisation is achieved by chaining two OSERDES2 primitives in DDR mode.}
+  \includegraphics[width=1\textwidth]{./img/10_1_serdes.png}
+  \caption{10:1 serialisation is achieved by chaining two OSERDES2 primitives in DDR mode \cite{xilinx:ug471}.}
   \label{fig:10_1_serdes}
 \end{figure}
 

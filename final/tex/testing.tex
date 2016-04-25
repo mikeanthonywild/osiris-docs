@@ -25,7 +25,7 @@ Objective comparison of the whole system is fairly tricky as it requires compari
 
 All images taken with the proof-of-concept system were converted from \gls{pgm} to lossless PNG format using ImageMagick (\url{https://www.imagemagick.org}). As the image is captured as RAW data, the images have been post-processed on a computer using a linear interpolation de-mosaicing algorithm from MatLAB's Image Processing toolbox, as seen in Listing \ref{lst:matlab_demosaic}.
 
-\begin{lstlisting}[caption={MatLAB's linear interpolation demosaicing algorithm.}, label={matlab_demosaic}, language=Matlab]
+\begin{lstlisting}[caption={MatLAB's linear interpolation demosaicing algorithm.}, label={lst:matlab_demosaic}, language=Matlab]
 raw_img = imread('raw.png');
 // Sensor CFA pattern:
 // [B][G]
@@ -46,8 +46,8 @@ imshow(colour_img);
   \includegraphics[width=.4\linewidth]{./img/ov7670_test_pattern_capture.png}
   \caption{Test pattern captured by image processor.}
 \end{subfigure}
-\label{fig:test_pattern_capture}
 \caption{Comparison of original test pattern and image captured and saved by the image processor.}
+\label{fig:test_pattern_capture}
 \end{figure}
 
 For Figure \ref{fig:test_pattern_capture}, a 640 x 480 resolution Nokia-provided test pattern normally used for testing monitors was loaded into the main framebuffer of the \gls{ps} on the sensor module board and transmitted over the image sensor interface at 72 \gls{fps} to the image processing board for storage on the SD card. When compared byte-for-byte, the two images are identical, meaning that the interface perfectly preserves the integrity of the data, thus it is a truly lossless interface.

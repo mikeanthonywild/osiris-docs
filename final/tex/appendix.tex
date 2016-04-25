@@ -1,18 +1,52 @@
 \begin{appendices}
+\chapter{Zynq address maps}
+\begin{table}
+\centering
+\begin{tabular}{lllll}
+Address range                             & CPUs and ACP & AXI\_HP & Other bus masters & Notes                                                 \\
+\multirow{4}{*}{0000\_0000 to 0003\_FFFF} & OCM          & OCM     & OCM               & Address not filtered by SCU and OCM is mapped low     \\
+                                          & DDR          & OCM     & OCM               & Address filtered by SCU and OCM is mapped low         \\
+                                          & DDR          &         &                   & Address filtered by SCU and OCM is not mapped low     \\
+                                          &              &         &                   & Address not filtered by SCU and OCM is not mapped low \\
+\multirow{2}{*}{0004\_0000 to 0007\_FFFF} & DDR          &         &                   & Address filtered by SCU                               \\
+                                          &              &         &                   & Address not filtered by SCU                           \\
+\multirow{2}{*}{0008\_0000 to 000F\_FFFF} & DDR          & DDR     & DDR               & Address filtered by SCU                               \\
+                                          &              & DDR     & DDR               & Address not filtered by SCU                           \\
+0010\_0000 to 3FFF\_FFFF                  & DDR          & DDR     & DDR               & Accessible to all interconnect masters                \\
+4000\_0000 to 7FFF\_FFFF                  & PL           &         & PL                & General Purpose Port \#0 to the PL, M\_AXI\_GP0       \\
+8000\_0000 to BFFF\_FFFF                  & PL           &         & PL                & General Purpose Port \#1 to the PL, M\_AXI\_GP1       \\
+E000\_0000 to E02F\_FFFF                  & IOP          &         & IOP               & I/O Peripheral registers                              \\
+E100\_0000 to E5FF\_FFFF                  & SMC          &         & SMC               & SMC Memories                                          \\
+F800\_0000 to F800\_0BFF                  & SLCR         &         & SLCR              & SLCR registers                                        \\
+F800\_1000 to F880\_FFFF                  & PS           &         & PS                & PS System registers                                   \\
+F890\_0000 to F8F0\_2FFF                  & CPU          &         &                   & CPU Private registers                                 \\
+FC00\_0000 to FDFF\_FFFF                  & Quad-SPI     &         & Quad-SPI          & Quad-SPI linear address for linear mode               \\
+\multirow{2}{*}{FFFC\_0000 to FFFF\_FFFF} & OCM          & OCM     & OCM               & OCM is mapped high                                    \\
+                                          &              &         &                   & OCM is not mapped high                               
+\end{tabular}
+\caption{Zynq-7000 system-level address map \cite{xilinx:ug585}.}
+\label{table:zynq_address_map}
+\end{table}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=1\textwidth]{./img/address_map.png}
+  \caption{Proof-of-concept design address map.}
+  \label{fig:poc_address_map}
+\end{figure}
+
 \chapter{\Gls{tmds} encoding and decoding algorithms}
 \begin{figure}
   \centering
-  \includegraphics[width=1\textwidth]{./img/tmds_encode.png}\par
-Source: \url{https://web.archive.org/web/20120521030851/http://www.ddwg.org/lib/dvi_10.pdf}
-  \caption{Flowchart for TMDS encoding algorithm.}
+  \includegraphics[width=1\textwidth]{./img/tmds_encode.png}
+  \caption{Flowchart for TMDS encoding algorithm \cite{dvi_spec}.}
   \label{fig:tmds_encoding_algorithm}
 \end{figure}
 
 \begin{figure}
   \centering
-  \includegraphics[width=1\textwidth]{./img/tmds_decode.png}\par
-Source: \url{https://web.archive.org/web/20120521030851/http://www.ddwg.org/lib/dvi_10.pdf}
-  \caption{Flowchart for TMDS decoding algorithm.}
+  \includegraphics[width=1\textwidth]{./img/tmds_decode.png}
+  \caption{Flowchart for TMDS decoding algorithm \cite{dvi_spec}.}
   \label{fig:tmds_decoding_algorithm}
 \end{figure}
 

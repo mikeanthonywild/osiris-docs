@@ -1,4 +1,5 @@
 \section{EDID subsystem}
+\label{sec:edid}
 
 As large parts of the system are highly-dependent on the format of the incoming video data, sensor modules are required to implement an \gls{edid}-like structure which can be transferred over the \gls{ddc} channel to notify downstream components about the video format used by the image sensor so that the data can be capture correctly.
 
@@ -41,7 +42,7 @@ The sensor parameters block contains details on the physical dimensions and inte
 \end{table}
 
 \subsection{Established timings}
-The established timings block is used to mark which common VESA output resolutions are supported. The information here is misleading as the OV7670 actually only outputs at \SI{30}{\hertz}, however only the resolutions detailed in the VESA Display Monitor Timings (\url{http://soc.fudan.edu.cn/vip/attachments/2058/VESA_and_Industry_Standards_and_Guidelines_for_Computer_Display_Monitor_Timing.pdf}) specification can be used here. As Image sensors vary wildly from regular displays in terms of resolution and framerate, it is unlikely that the established timings block is of any use.
+The established timings block is used to mark which common VESA output resolutions are supported. The information here is misleading as the OV7670 actually only outputs at \SI{30}{\hertz}, however only the resolutions detailed in the VESA Display Monitor Timings specification can be used here \cite{video_timing}. As Image sensors vary wildly from regular displays in terms of resolution and framerate, it is unlikely that the established timings block is of any use.
 
 \begin{table}
     \begin{tabular}{lll}

@@ -12,7 +12,7 @@ Internally, an \gls{fpga} consists of a tiled array of interconnected, configura
         Slices  & LUTs  & Flip-flops    & Arithmetic and carry chains   & Distributed RAM   & Shift registers   \\
         2       & 8     & 16            & 2                             & 256 bits          & 128 bits
     \end{tabular}
-    \caption{Logic resources in Zynq-7000 logic block (\url{http://www.xilinx.com/support/documentation/user_guides/ug474_7Series_CLB.pdf}).}
+    \caption{Logic resources in Zynq-7000 logic block \cite{xilinx:ug474}.}
     \label{table:clb_resources}
 \end{table}
 
@@ -22,14 +22,13 @@ Each slice is joined together to form the fabric --- a vast array of configurabl
 
 \begin{figure}
   \centering
-  \includegraphics[width=1\textwidth]{./img/fpga_arch_diagram.png}\par
-Source: \url{http://zone.ni.com/reference/en-XX/help/371599G-01/lvfpgaconcepts/fpga_basic_chip_terms/}
-  \caption{Architectural diagram of \gls{fpga} internals.}
+  \includegraphics[width=1\textwidth]{./img/fpga_arch_diagram.png}
+  \caption{Architectural diagram of \gls{fpga} internals \cite{ni_fpga_slice}.}
   \label{fig:fpga_diagram}
 \end{figure}
 
 \subsection{Hardware Description Languages}
-Before \glspl{fpga} became commonplace, custom \gls{ic} were painstakingly designed transistor-by-transistor. The 1970s and 1980s gave rise to several \glspl{hdl} --- a new way to describe electronic circuits using a formalised syntax. Fabricating custom \glspl{ic} is a highly complex and expensive process --- designers need to be 100\% certain that the \gls{ic} is sound before taping out the design, or face the huge setbacks (both time and financial) associated with getting it wrong. The abstraction provided by \glspl{hdl} made them very useful for taking an existing design (usually in the form of a captured schematic) and constructing rigorous verification and testing procedures to ensure that the design functions as intended. Despite the test and verification teams being as large, if not larger than the design teams, errors are still made --- most famously an uncaught bug in Intel Pentium processors caused a crash when working with floating-point numbers (\url{http://download.intel.com/support/processors/pentium/sb/FDIV_Floating_Point_Flaw_Pentium_Processor.pdf}). 
+Before \glspl{fpga} became commonplace, custom \gls{ic} were painstakingly designed transistor-by-transistor. The 1970s and 1980s gave rise to several \glspl{hdl} --- a new way to describe electronic circuits using a formalised syntax. Fabricating custom \glspl{ic} is a highly complex and expensive process --- designers need to be 100\% certain that the \gls{ic} is sound before taping out the design, or face the huge setbacks (both time and financial) associated with getting it wrong. The abstraction provided by \glspl{hdl} made them very useful for taking an existing design (usually in the form of a captured schematic) and constructing rigorous verification and testing procedures to ensure that the design functions as intended. Despite the test and verification teams being as large, if not larger than the design teams, errors are still made --- most famously an uncaught bug in Intel Pentium processors caused a crash when working with floating-point numbers \cite{intel_floating_point}. 
 
 Moore's Law saw the transistor counts in \gls{ic} designs grow exponentially to the point where placing individual transistors by hand was no longer feasible. \Glspl{hdl} saw a surge in popularity when they started being used not only for test and verification, but also design. Instead of designing systems at the schematic level, designers used the high-level abstractions that \glspl{hdl} provided to design systems at the \gls{rtl}. Designing at \gls{rtl} level models systems as synchronous digital circuits and required thinking in terms of using hardware registers to store data and the combinatorial logic between them. Designs are typically broken up into individual modules to reduce complexity and increase re-usability, with each module being a isolated set of input and output ports, sequential and combinatorial logic. \Glspl{hdl} are used extensively in modern digital design, with the two most common languages being Verilog (typically favoured in North America) and VHDL (more common in Europe). While modern \glspl{hdl} may resemble common procedural programming languages like C, \glspl{hdl} are fundamentally different in that they describe a concurrent hardware design, rather than a sequentially-executed process. As a result \glspl{fpga} are favoured for problems which benefit from high parallelism and heavy input and output throughput. Verilog was chosen for this project simply because of the author's prior experience with the language.
 
