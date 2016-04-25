@@ -54,12 +54,10 @@ Due to the transfer rates it is not possible to capture video using this method 
 
 Because the entire framebuffer is written in one go, the framebuffer \gls{dma} processor is blocked from running. While the \glspl{isr} are still called, the framebuffer \gls{dma} transfers are initiated in the main process which is blocked by the SD card write. As the framebuffer \gls{dma} processor is inactive during this period the output linebuffer becomes stale, with the viewfinder controller rendering the same line repeatedly, causing the pixel smearing in Figure \ref{fig:interrupt_smudge}. While very simple, writing the entire frame in a single chunk is sub-optimal and several markedly better alternatives exist. Firstly, the ARM Cortex A9 inside the \gls{ps} is dual core, however the firmware is only single-threaded. Rather than running everything on a single core, it would be desirable to run critical tasks  (anything involving reading or writing to the framebuffer) on one core and non-critical code (rendering the viewfinder HUD) on the other. Another improvement would be the addition of a state machine; rather than writing the whole chunk in one go, a state machine could be used to break the SD card write into smaller chunks so that the framebuffer \gls{dma} processor can run in between.
 
-\marginpar{insert diagram of this}
-
 \begin{figure}
   \centering
-  \includegraphics[width=1\textwidth]{./img/interrupt_smudge.jpg}
-  \caption{Writing to flash storage prevents the framebuffer \gls{dma} processor from running, causing a smudged appearance as the same line is drawn repeatedly.}
+  \includegraphics[width=0.5\textwidth]{./img/interrupt_smudge.jpg}
+  \caption[Video output smudge due to blocking.]{Writing to flash storage prevents the framebuffer \gls{dma} processor from running, causing a smudged appearance as the same line is drawn repeatedly.}
   \label{fig:interrupt_smudge}
 \end{figure}
 

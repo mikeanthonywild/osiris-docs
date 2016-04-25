@@ -1,12 +1,11 @@
 \section{OV7670 sensor controller}
 \subsection{Overview}
-To prove that the interface was suitable for image sensors a 640 x 480 OV7670 CMOS sensor was used to capture real-time image data... The Omnivision OV7670 is a small, low-cost CMOS sensor originally design for use in mobile phones which has seen popularity in the hobbyist electronics community due to its availability and ease of use. These factors, along with the wealth of documentation available contributed to its inclusion in this proof-of-concept system. As mobile phones at the time lacked the power to do image processing themselves, the OV7670 contains built-in hardware for image enhancements such as de-bayering, lens correction and noise removal, making it surprisingly complex. The OV7670 was included solely to demonstrate the effectiveness of the interface in a real camera system, thus these features are not used.
+To prove that the interface was suitable for image sensors a 640x480 OV7670 CMOS sensor was used to capture real-time image data. The Omnivision OV7670 is a small, low-cost CMOS sensor originally design for use in mobile phones which has seen popularity in the hobbyist electronics community due to its availability and ease of use. These factors, along with the wealth of documentation available contributed to its inclusion in this proof-of-concept system. As mobile phones at the time lacked the power to do image processing themselves, the OV7670 contains built-in hardware for image enhancements such as de-bayering, lens correction and noise removal, making it surprisingly complex. The OV7670 was included solely to demonstrate the effectiveness of the interface in a real camera system, thus these features are not used.
 
 \begin{figure}
   \centering
   \includegraphics[width=1\textwidth]{./img/ov7670_block_diagram.png}\par
-Source: Omnivision OV7670/OV7171 1.0 Specification
-  \caption{Functional block diagram of Omnivision's OV7670 CMOS image sensor.}
+  \caption{Functional block diagram of Omnivision's OV7670 CMOS image sensor \cite{ov7670_datasheet}.}
   \label{fig:ov7670_block_diagram}
 \end{figure}
 
@@ -15,7 +14,7 @@ Figure \ref{fig:ov7670_block_diagram} outlines the key functional blocks inside 
 \begin{figure}
   \centering
   \includegraphics[width=1\textwidth]{./img/ov7670_timing.png}
-  \caption{OV7670 timing diagram. The \texttt{VSYNC} signal pulses shortly before the start of each frame. \texttt{HREF} is high to indicate the data on output \texttt{D} is valid \cite{ov7670_datasheet}.}
+  \caption[OV7670 timing diagram.]{OV7670 timing diagram. The \texttt{VSYNC} signal pulses shortly before the start of each frame. \texttt{HREF} is high to indicate the data on output \texttt{D} is valid \cite{ov7670_datasheet}.}
   \label{fig:ov7670_timing}
 \end{figure}
 
@@ -36,13 +35,14 @@ The OV7670 contains a set of internal registers to configure all aspects of its 
     \item Pause to allow OV7670 to acknowledge data frame
 \end{enumerate}
 
-The \texttt{ov7670\_controller} module contains a 'dumb' I\textsuperscript{2}C controller --- it ignores all responses from the slave and stops as soon as it has finished configuring the OV7670 registers. For the sake of simplicity, the register configuration can be re-triggered by asserting the reset signal. Not implementing intelligence to deal with frame retransmits due to errors simplifies the design significantly, while still allowing the user to manually re-trigger register configuration if anything does go wrong. Once the configuration has been written the \texttt{ov7670\_controller} module asserts the \texttt{start\_capture} signal to notify the \texttt{ov7670\_capture} module that the OV7670 is initialised and properly configured.
+The \texttt{ov7670\_controller} module contains a `dumb' I\textsuperscript{2}C controller --- it ignores all responses from the slave and stops as soon as it has finished configuring the OV7670 registers. For the sake of simplicity, the register configuration can be re-triggered by asserting the reset signal. Not implementing intelligence to deal with frame retransmits due to errors simplifies the design significantly, while still allowing the user to manually re-trigger register configuration if anything does go wrong. Once the configuration has been written the \texttt{ov7670\_controller} module asserts the \texttt{start\_capture} signal to notify the \texttt{ov7670\_capture} module that the OV7670 is initialised and properly configured.
 
 \begin{table}
-    \begin{tabular}{llll}
+    \begin{tabular}{p{0.3\linewidth}p{0.1\linewidth}p{0.1\linewidth}p{0.5\linewidth}}
     Register            & Address   & Value     & Description                       \\
+    \hline
     COM7                & 0x12      & 0x80      & Reset all registers to defaults   \\
-    CLKRC               & 0x11      & 0x01      & Input clock prescaler divide-by-four, disable PCLK doubling (PCLK will be \(f_internal / 2\)) \\
+    CLKRC               & 0x11      & 0x01      & Input clock prescaler divide-by-four, disable PCLK doubling (PCLK will be \texttt{f\textsubscript{internal} / 2}) \\
     DBLV                & 0x6B      & 0x7A      & Input clock PLL x4                \\
     COM7                & 0x12      & 0x01      & Output format 640 x 480 Bayer RAW \\
     COM3                & 0x0C      & 0x00      & Disable output scaling            \\
@@ -60,18 +60,19 @@ The \texttt{ov7670\_controller} module contains a 'dumb' I\textsuperscript{2}C c
 \subsection{\texttt{ov7670\_capture} module}
 Given that the purpose of a standardised image sensor interface is to provide video data in a format which can be paired with any image sensor device, it stands to reason that the data must be converted to a different format at some point. The task of the \texttt{ov7670\_capture} module is to capture pixels from the OV7670's parallel video interface and pass them on to the \texttt{i\_buf\_controller} module detailed in Section \ref{sec:framebuffer_dma} for storage in the framebuffer where they are processed by the DVI encoder. Originally the \texttt{ov7670\_capture} module had direct control over the memory, however this functionality was moved to the \texttt{i\_buf\_controller} module, reducing the \texttt{ov7670\_capture} to a passthrough or level conversion device.
 
-To transfer frames between different blocks inside the \gls{fpga}, uses the standard VESA video interface: a pixel clock to signal when a new pixel is available, parallel data for pixels, horizontal sync for signalling end-of-line, vertical sync for signalling end-of-frame, and additionally a data valid signal which marks exactly when the active video period begins---greatly simplifying the design. Without this signal a timing recovery block would be needed to measure the frequency of \texttt{vsync} and \texttt{hsync} pulses to determine the resolution of the video and thus where the active video period begins and ends.
+To transfer frames between different blocks inside the \gls{fpga}, the standard VESA video interface is used: a pixel clock to signal when a new pixel is available, parallel data for pixels, horizontal sync for signalling end-of-line, vertical sync for signalling end-of-frame, and additionally a data valid signal which marks exactly when the active video period begins---greatly simplifying the design. Without this signal a timing recovery block would be needed to measure the frequency of \texttt{vsync} and \texttt{hsync} pulses to determine the resolution of the video and thus where the active video period begins and ends.
 
 The OV7670's video interface is very similar, however some signals are lacking and others function differently as summarised in Table \ref{table:ov7670_video_interface}. 
 
 \begin{table}
   \begin{tabular}{lll}
   OV7670 signal   & VESA equivalent & Description                                           \\
+  \hline
   d[7:0]          & d[7:0]          & Pixel data remains the same                           \\
   vsync           & vsync           & OV7670 vsync is active-high, VESA vsync is active-low \\
   href            & vde             & href is active-low, vde is active-high                \\
   N/A             & hsync           & OV7670 lacks a href signal
   \end{tabular}
-  \caption{The OV7670 video interface is very similar to the VESA interface, however minor signal conversions are required.}
+  \caption[OV7670 interface and VESA interface comparison.]{The OV7670 video interface is very similar to the VESA interface, however minor signal conversions are required.}
   \label{table:ov7670_video_interface}
 \end{table}

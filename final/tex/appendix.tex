@@ -2,8 +2,9 @@
 \chapter{Zynq address maps}
 \begin{table}
 \centering
-\begin{tabular}{lllll}
+\begin{tabular}{p{0.25\linewidth}lllp{0.3\linewidth}}
 Address range                             & CPUs and ACP & AXI\_HP & Other bus masters & Notes                                                 \\
+\hline
 \multirow{4}{*}{0000\_0000 to 0003\_FFFF} & OCM          & OCM     & OCM               & Address not filtered by SCU and OCM is mapped low     \\
                                           & DDR          & OCM     & OCM               & Address filtered by SCU and OCM is mapped low         \\
                                           & DDR          &         &                   & Address filtered by SCU and OCM is not mapped low     \\

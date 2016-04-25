@@ -5,15 +5,17 @@ This section presents a block diagram of a proof-of-concept system and introduce
 \section{Field-Programmable Gate Arrays}
 
 \subsection{Architecture}
-Internally, an \gls{fpga} consists of a tiled array of interconnected, configurable logic blocks referred to as 'slices', bordered by a series of input / output blocks on the periphery of the device. Inside each slice are a number of fixed resources such as adders, multipliers, registers, \glspl{lut} and memory which can be selectively enabled or disabled to provide reconfigurability. While the number of inputs, outputs and internal resources of a slice varies between \glspl{fpga}, the principle is still the same: use lots of very basic but highly configurable slices to implement any arbitrary digital design. Table \ref{table:clb_resources} shows the resources inside a logic block in the Zynq-7000 \gls{fpga} used for this proof-of-concept.
+Internally, an \gls{fpga} consists of a tiled array of interconnected, configurable logic blocks referred to as \textit{slices}, bordered by a series of input / output blocks on the periphery of the device. Inside each slice are a number of fixed resources such as adders, multipliers, registers, \glspl{lut} and memory which can be selectively enabled or disabled to provide reconfigurability. While the number of inputs, outputs and internal resources of a slice varies between \glspl{fpga}, the principle is still the same: use lots of very basic but highly configurable slices to implement any arbitrary digital design. Table \ref{table:clb_resources} shows the resources inside a logic block in the Zynq-7000 \gls{fpga} used for this proof-of-concept.
 
 \begin{table}
-    \begin{tabular}{llllll}
-        Slices  & LUTs  & Flip-flops    & Arithmetic and carry chains   & Distributed RAM   & Shift registers   \\
-        2       & 8     & 16            & 2                             & 256 bits          & 128 bits
-    \end{tabular}
-    \caption{Logic resources in Zynq-7000 logic block \cite{xilinx:ug474}.}
-    \label{table:clb_resources}
+  \centering
+  \begin{tabular}{llllll}
+      Slices  & LUTs  & Flip-flops    & Arithmetic and carry chains   & Distributed RAM   & Shift registers   \\
+      \hline
+      2       & 8     & 16            & 2                             & 256 bits          & 128 bits
+  \end{tabular}
+  \caption{Logic resources in Zynq-7000 logic block \cite{xilinx:ug474}.}
+  \label{table:clb_resources}
 \end{table}
 
 Combinatorial logic can be implemented using a simple lookup table to map every possible combination of inputs to a specific output value. Essentially a complex block of combinatorial logic can be minimised and the resulting truth table is stored in a \gls{lut}. By combining \glspl{lut} with flip-flops, any digital circuit can be reproduced inside a logic slice given it has sufficient resources. Additionally many logic blocks also contain embedded memory (block RAM and distributed RAM) which can be used to implement small ROMs, RAMs and FIFOs.
@@ -22,7 +24,7 @@ Each slice is joined together to form the fabric --- a vast array of configurabl
 
 \begin{figure}
   \centering
-  \includegraphics[width=1\textwidth]{./img/fpga_arch_diagram.png}
+  \includegraphics[width=0.5\textwidth]{./img/fpga_arch_diagram.png}
   \caption{Architectural diagram of \gls{fpga} internals \cite{ni_fpga_slice}.}
   \label{fig:fpga_diagram}
 \end{figure}
@@ -38,9 +40,8 @@ Regardless of whether the target is an \gls{fpga} or a custom \gls{asic}, severa
 
 \begin{figure}
   \centering
-  \includegraphics[width=1\textwidth]{./img/gate_level.png}\par
-Source: diagram by Alinja, distributed under CC BY-SA 3.0
-  \caption{Corresponding gate-level representation of code in Listing \ref{lst:verilog_example}.}
+  \includegraphics[width=0.5\textwidth]{./img/gate_level.png}
+  \caption{Corresponding gate-level representation of code in Listing \ref{lst:verilog_example} \cite{gate_level}.}
   \label{fig:gate_level}
 \end{figure}
 
@@ -62,9 +63,8 @@ Unlike \glspl{ccd}, which rely on a very specialised fabrication process, CMOS s
 
 \begin{figure}
   \centering
-  \includegraphics[width=1\textwidth]{./img/bayer_pattern.png}\par
-Source: diagram by Cburnett, distributed under CC BY-SA 3.0
-  \caption{Bayer filter}
+  \includegraphics[width=0.5\textwidth]{./img/bayer_pattern.png}\par
+  \caption{Bayer filter \cite{bayer_filter}}
   \label{fig:bayer_pattern}
 \end{figure}
 

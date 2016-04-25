@@ -7,9 +7,8 @@ In \gls{dvi} nomenclature, a \gls{dvi} link is comprised of an input and output 
 
 \begin{figure}
   \centering
-  \includegraphics[width=1\textwidth]{./img/dvi_link_overview.png}\par
-Source: DVI 1.0 Specification
-  \caption{Single \gls{dvi} link in RGB mode.}
+  \includegraphics[width=0.8\textwidth]{./img/dvi_link_overview.png}\par
+  \caption{Single \gls{dvi} link in RGB mode \cite{dvi_spec}.}
   \label{fig:dvi_link_overview}
 \end{figure}
 
@@ -19,19 +18,19 @@ Unlike other modern digital video interfaces, \gls{dvi} does not packetise its d
 
 \begin{figure}
   \centering
-  \includegraphics[width=1\textwidth]{./img/raster_scan.png}
+  \includegraphics[width=0.5\textwidth]{./img/raster_scan.png}
   \caption{Illustration of visible pixels and blanking periods.}
   \label{fig:raster_scan}
 \end{figure}
 
 \begin{figure}
   \centering
-  \includegraphics[width=1\textwidth]{./img/raster_scan.png}
-  \caption{Video timing synchronisation signals used to mark end of line (HSYNC) and end of frame (VSYNC).}
+  \includegraphics[width=0.7\textwidth]{./img/vesa_timing.png}
+  \caption[Video timing synchronisation signals.]{Video timing synchronisation signals used to mark end of line (HSYNC) and end of frame (VSYNC) \cite{vesa_timing_diagram}.}
   \label{fig:video_timing_signals}
 \end{figure}
 
-Figures \ref{fig:raster_scan} illustrate the raster scan video technique. If this image was displayed on a monitor, only the blue 'active video' part would be visible, while the grey 'blanking period' extends beyond the display and thus is not drawn, rather it is used to carry the timing signals in Figure \ref{fig:video_timing_signals}. In an analogue monitor these signals would have been used to position the electron beam, however in modern digital displays the HSYNC (end of line) and VSYNC (end of frame) signals are used to detect the video resolution. Single-link \gls{dvi} requires all devices to support a colour-depth of 24-bits per pixel. Unlike \gls{hdmi}, which supports both RGB and YUV data formats, \gls{dvi} only supports RGB \cite{dvi_spec}.
+Figures \ref{fig:raster_scan} illustrate the raster scan video technique. If this image was displayed on a monitor, only the blue \textit{active video} part would be visible, while the grey \textit{blanking period} extends beyond the display and thus is not drawn, rather it is used to carry the timing signals in Figure \ref{fig:video_timing_signals}. In an analogue monitor these signals would have been used to position the electron beam, however in modern digital displays the HSYNC (end of line) and VSYNC (end of frame) signals are used to detect the video resolution. Single-link \gls{dvi} requires all devices to support a colour-depth of 24-bits per pixel. Unlike \gls{hdmi}, which supports both RGB and YUV data formats, \gls{dvi} only supports RGB \cite{dvi_spec}.
 
 \subsection{Physical layer}
 
@@ -52,7 +51,7 @@ The DDC2B interface allows for a graphics host and display device to be connecte
 \begin{figure}
   \centering
   \includegraphics[width=1\textwidth]{./img/i2c_bus.png}
-  \caption{A typical I\textsuperscript{2}C master / slave configuration. DDC2B specifies a single master (graphics host) and a single slave (display device).}
+  \caption[Typical I\textsuperscript{2}C master / slave configuration.]{A typical I\textsuperscript{2}C master / slave configuration. DDC2B specifies a single master (graphics host) and a single slave (display device).}
   \label{fig:i2c_bus}
 \end{figure}
 
@@ -61,16 +60,18 @@ I\textsuperscript{2}C requires only two nets, regardless of the number of master
 \gls{edid} is a standardised data structure which may be used by a display device to describe various capabilities such as supported resolutions and colour formats. Typically the \gls{edid} data is stored on an I\textsuperscript{2}C-connected \gls{eeprom} chip inside the display device, so that the graphics host may query the display's capabilities using the \gls{ddc} and set the output format accordingly \cite{edid_spec}.
 
 \begin{table}
-    \begin{tabular}{ll}
-    Byte offset & Field                       \\
-    0x00        & Header information          \\
-    0x14        & Basic display parameters    \\
-    0x19        & Chromaticity coordinates    \\
-    0x23        & Established timing bitmap   \\
-    0x26        & Standard timing information \\
-    \end{tabular}
-    \caption{Basic fields \gls{edid} v1.3 for storing monitor capabilities.}
-    \label{table:basic_edid_fields}
+  \centering
+  \begin{tabular}{ll}
+  Byte offset & Field                       \\
+  \hline
+  0x00        & Header information          \\
+  0x14        & Basic display parameters    \\
+  0x19        & Chromaticity coordinates    \\
+  0x23        & Established timing bitmap   \\
+  0x26        & Standard timing information \\
+  \end{tabular}
+  \caption{Basic fields \gls{edid} v1.3 for storing monitor capabilities.}
+  \label{table:basic_edid_fields}
 \end{table}
 
 \section{Required additions for image sensors}

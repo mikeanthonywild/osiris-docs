@@ -3,12 +3,12 @@
 
 \begin{figure}
   \centering
-  \includegraphics[width=1\textwidth]{./img/framebuffer_block_diagram.png}
-  \caption{Block diagram of the framebuffer DMA processor. Image data is stored in a temporary input before being copied to the main framebuffer. A similar configuration on the output allows image data to be modified by the Zynq PS and transmitted.}
+  \includegraphics[width=0.8\textwidth]{./img/framebuffer_block_diagram.png}
+  \caption[Framebuffer DMA block diagram.]{Block diagram of the framebuffer DMA processor. Image data is stored in a temporary input before being copied to the main framebuffer. A similar configuration on the output allows image data to be modified by the Zynq PS and transmitted.}
   \label{fig:framebuffer_block_diagram}
 \end{figure}
 
-A framebuffer is a portion of memory which holds the current frame, allowing the hardware blocks either side to act in complete isolation. Both sides of the link use framebuffers, though their purpose differs. On the receiver side the framebuffer stores each frame before it is written to flash storage. Firmware inside the Zynq \gls{ps} \marginpar{Explain the Zynq PS} can draw to the frame in real-time, adding helpful indicators such as the currently connected sensor module and gridlines to aid the photographer's composition process. On the transmitter side the framebuffer serves a different purpose. A critical flaw in the design of the \gls{dvi} receiver causes the link to break if the incoming pixel clock is less than \SI{40}{\mega\hertz} --- a potential issue because the OV7670's pixel clock is only \SI{12}{\mega\hertz}. To mitigate this, the transmitter sends out duplicate frames in order to artificially inflate the data rate, thus bringing the pixel clock up into the region required for correct operation.
+The framebuffer is a portion of memory which holds the current frame, allowing the hardware blocks either side to act in complete isolation. Both sides of the link use framebuffers, though their purpose differs. On the receiver side the framebuffer stores each frame before it is written to flash storage. Firmware inside the Zynq \gls{ps} can draw to the frame in real-time, adding helpful indicators such as the currently connected sensor module and gridlines to aid the photographer's composition process. On the transmitter side the framebuffer serves a different purpose. A critical flaw in the design of the \gls{dvi} receiver causes the link to break if the incoming pixel clock is less than \SI{40}{\mega\hertz} --- a potential issue because the OV7670's pixel clock is only \SI{12}{\mega\hertz}. To mitigate this, the transmitter sends out duplicate frames in order to artificially inflate the data rate, thus bringing the pixel clock up into the region required for correct operation.
 
 The space required to store frames is a direct function of the image resolution. As the OV7670 outputs frames in 640 x 480 resolution, a \SI{307.2}{\kilo\byte} framebuffer is required. While \glspl{fpga} usually contain a small amount of internal block RAM, there is insufficient space for storing an entire frame. Though its access is significantly more complicated, the Zynq-7000 includes a hard DDR controller which can be utilised to store the frames in external DDR3 memory instead --- the Zybo development board contains \SI{512}{\mega\byte} of RAM, which is more than sufficient for storing a single frame.
 
@@ -24,8 +24,9 @@ Due to the internal architecture of the Zynq-7000, external RAM is only accessib
 
 \begin{table}
 \centering
-\begin{tabular}{llll}
+\begin{tabular}{l|p{0.3\linewidth}p{0.3\linewidth}p{0.3\linewidth}}
               & AXI4                               & AXI4-Lite                      & AXI4-Stream                \\
+\hline
 Dedicated for & High-performance and memory-mapped & Register-style interfaces      & Non-address based IP       \\
 Burst         & Up to 256                          & 1                              & Unlimited                  \\
 Data width    & 32 - 1024 bits                     & 32 / 64 bits                   & Anything                   \\
@@ -37,21 +38,22 @@ Applications  & Embedded, memory                   & Small footprint logic, cont
 
 As separate channels are used for reading and writing, device communication is fully bi-directional. In addition to the address and data signals, extra signals are provided for control and synchronisation to ensure that a device can only begin a transaction when the other device is ready. Figure \ref{fig:axi_architecture} illustrates a typical AXI4 interface. 
 
-\begin{figure}
-\centering
-\begin{subfigure}{.5\textwidth}
+\begin{figure*}[t!]
   \centering
-  \includegraphics[width=.4\linewidth]{./img/axi_read.png}
-  \caption{Read Channel}
-\end{subfigure}%
-\begin{subfigure}{.5\textwidth}
-  \centering
-  \includegraphics[width=.4\linewidth]{./img/axi_write.png}
-  \caption{Write Channel}
-\end{subfigure}
-\caption{Architecture of AXI4 Read and Write Channels \cite{xilinx:ug1037}.}
-\label{fig:axi_architecture}
-\end{figure}
+  \begin{subfigure}[t]{0.5\textwidth}
+    \centering
+    \includegraphics[width=1\textwidth]{./img/axi_read.png}
+    \caption{Read Channel}
+  \end{subfigure}%
+  ~ 
+  \begin{subfigure}[t]{0.5\textwidth}
+    \centering
+    \includegraphics[width=1\textwidth]{./img/axi_read.png}
+    \caption{Write Channel}
+  \end{subfigure}
+  \caption{Architecture of AXI4 Read and Write Channels \cite{xilinx:ug1037}.}
+  \label{fig:axi_architecture}
+\end{figure*}
 
 All hardware inside the Zynq can be addressed from the \gls{ps} provided it has been connected via \gls{axi}. AXI requires all devices to be assigned an address which complies with the address map in Table \ref{table:zynq_address_map}. For example, the \gls{axi} master port \texttt{M\_AXI\_GP0} on the \gls{ps} has the address range \texttt{0x4000\_0000} to \texttt{0x7FFF\_FFFF}. Any \gls{axi} slave devices in the \gls{pl} assigned an address in this range can be accessed from the \gls{ps}. Conversely, any \gls{axi} master devices in the \gls{pl} connected to the \gls{ps} slave port \texttt{S\_AXI\_HP0} can access most of the DDR address range.
 
@@ -68,13 +70,6 @@ Each line of the input frame is written into a \SI{2048}{\kilo\byte} linebuffer 
 
 \subsection{\texttt{i\_buf\_controller} module}
 The \texttt{i\_buf\_controller} module is a simple shim which writes each line of the video into the linebuffer and triggers interrupts on the \gls{ps} to initiate a \gls{dma} transfer into the DDR framebuffer. Upon detecting the \texttt{vde} signal going high, the input buffer controller starts writing each incoming pixel into the linebuffer. Due to the 32-bit data width, each block RAM write consists of four 8-bit pixels packed together. Attention must be paid to the endianness when packing pixel data. Figure \ref{fig:dma_endianness} illustrates how packing the pixels into a 32-bit block will cause their order to become reversed when transferred as a result of little-endian storing the least significant bit in the lowest memory address. To ensure pixels are stored in the correct order in the DDR framebuffer they are shifted into a 32-bit shift register, with the left-most pixel stored as the least significant bits.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=1\textwidth]{./img/dma_endianness.png}
-  \caption{32-bit DMA transfer of a block of four 8-bit pixels causes the pixel order to be reversed due to the little-endian architecture of the Zynq \gls{ps}.}
-  \label{fig:dma_endianness}
-\end{figure}
 
 The blanking period provides a short interval during which the current linebuffer is transferred into the framebuffer by the \texttt{i\_axi\_cdma} instance. As any AXI CDMA transactions must be initiated from the \gls{ps}, the input buffer controller is connected to the \gls{ps} via two interrupt lines. As soon the last pixel in the line is written to the linebuffer, the input buffer controller triggers the \texttt{line\_valid} interrupt to notify the firmware running inside the \gls{ps} that it needs to copy the line into the main framebuffer. Similarly, the \texttt{frame\_valid} interrupt is triggered when the \texttt{vsync} signal is received, indicating a boundary between frames. The address generation and data packing logic is shown in Listing \ref{lst:i_buf_controller}.
 
@@ -94,6 +89,13 @@ if (vde) begin
     end
 end
 \end{lstlisting}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=1\textwidth]{./img/dma_endianness.png}
+  \caption[DMA transfer byte reversal.]{32-bit DMA transfer of a block of four 8-bit pixels causes the pixel order to be reversed due to the little-endian architecture of the Zynq \gls{ps}.}
+  \label{fig:dma_endianness}
+\end{figure}
 
 \subsection{AXI CDMA and buffer control firmware}
 Interrupts from the input and output buffer controllers are connected to the \gls{gic} on the \gls{ps} via the \texttt{IRQ\_F2P} line. Each interrupt connected to the \gls{gic} must be initialised individually. To help with this, the function in Listing \ref{lst:interrupt_setup} is used to connect each interrupt to an \gls{isr} and configure it to only trigger on the rising edge. Listing \ref{lst:isr_functions} shows the four \glspl{isr} which handle the input and output buffer controller interrupts. \glspl{isr} should generally be kept as short as possible, and so flags are used to indicate to the main loop that a memory transaction is required.
@@ -139,18 +141,18 @@ In order to deal with the high throughput, the Zynq \gls{ps} offloads large memo
 \begin{figure}
   \centering
   \includegraphics[width=1\textwidth]{./img/axi_cdma.png}
-  \caption{Master ports of AXI CDMA instance are connected to Zynq PS for framebuffer access, and AXI BRAM Controller for linebuffer access. An additional AXI4-Lite interface allows control from the PS.}
+  \caption[AXI CDMA connection diagram.]{Master ports of AXI CDMA instance are connected to Zynq PS for framebuffer access, and AXI BRAM Controller for linebuffer access. An additional AXI4-Lite interface allows control from the PS.}
   \label{fig:axi_cdma}
 \end{figure}
 
-The AXI CDMA core provides a control interface on its slave port. When connected to the \gls{ps}, the AXI CDMA exposes a set of control registers which can be used by the firmware is able to initiate \gls{dma} transfers. The key registers are \cite{xilinx:pg034}:
+The AXI CDMA core provides a control interface on its slave port. When connected to the \gls{ps}, the AXI CDMA exposes a set of control registers which can be used by the firmware to initiate \gls{dma} transfers. The key registers are \cite{xilinx:pg034}:
 \begin{itemize}
   \item \texttt{SRCADDR}: Source address to transfer bytes from
   \item \texttt{DSTADDR}: Destination address to transfer bytes to 
   \item \texttt{BTT}: Number of bytes to transfer
 \end{itemize}
 
-Rather than write to these registers directly, the firmware uses a set of wrapper functions which perform various additional validation checks. Listing \ref{lst:update_buf_controller} details the buffer update routie which checks if any flags have been set by the \glspl{isr} in Listing \ref{lst:isr_functions}. When the \texttt{line\_valid} flag is set, the input buffer controller is indicating that the linebuffer is full and the \gls{ps} should copy it into the main framebuffer. Conversely, when the \texttt{req\_line} flag is set, the output buffer controller is indicating that it requires the \gls{ps} to copy a new line into the linebuffer. Should one of the line valid / line request flags be set, the firmware calls the \texttt{XAxiCdma\_SimpleTransfer()} function with the corresponding source address and destination address. This function sets the AXI CDMA control registers accordingly and then initiates the \gls{dma} transfer by writing to the \texttt{BTT} register. The firmware uses two pointers to keep track of memory offsets and ensure the correct line is written or copied from the two linebuffers. To improve performance, the \gls{ps} ARM core includes a data cache which helps avoid expensive external memory operations by storing commonly-accessed data in faster on-chip memory. Before initiating a \gls{dma} transfer the data cache needs to be wiped using the \texttt{Xil\_DCacheInvalidateRange()} and \texttt{Xil\_DCacheFlushRange()} functions, to prevent any stale data being transferred.
+Rather than write to these registers directly, the firmware uses a set of wrapper functions which perform various additional validation checks. Listing \ref{lst:update_buf_controller} details the buffer update routine which checks if any flags have been set by the \glspl{isr} in Listing \ref{lst:isr_functions}. When the \texttt{line\_valid} flag is set, the input buffer controller is indicating that the linebuffer is full and the \gls{ps} should copy it into the main framebuffer. Conversely, when the \texttt{req\_line} flag is set, the output buffer controller is indicating that it requires the \gls{ps} to copy a new line into the linebuffer. Should one of the line valid / line request flags be set, the firmware calls the \texttt{XAxiCdma\_SimpleTransfer()} function with the corresponding source address and destination address. This function sets the AXI CDMA control registers accordingly and then initiates the \gls{dma} transfer by writing to the \texttt{BTT} register. The firmware uses two pointers to keep track of memory offsets and ensure the correct line is written or copied from the two linebuffers. To improve performance, the \gls{ps} ARM core includes a data cache which helps avoid expensive external memory operations by storing commonly-accessed data in faster on-chip memory. Before initiating a \gls{dma} transfer the data cache needs to be wiped using the \texttt{Xil\_DCacheInvalidateRange()} and \texttt{Xil\_DCacheFlushRange()} functions, to prevent any stale data being transferred.
 
 \begin{lstlisting}[caption={Buffer controller update loop}, label={lst:update_buf_controller}, language=C]
 void update_buf_controller(void) {
@@ -185,7 +187,6 @@ void update_buf_controller(void) {
 The frame valid / frame requests flags are simply used to reset the framebuffer pointer to the first line, meaning that the framebuffer is overwritten every frame. In a proper implementation, double or triple buffering would be used to ensure that the input linebuffer could not overwrite the frame currently being output, however this would have added unnecessary complexity to the design.
 
 \subsection{\texttt{o\_buf\_controller} module}
-\marginpar{Include portmap of module}
 The output buffer controller is fundamentally the same as the input buffer controller, except its operation is reversed. The \texttt{o\_buf\_controller} module uses two interrupts, \texttt{req\_line} and \texttt{req\_frame}, to signal when the output linebuffer needs filling with the next line from the framebuffer.
 
 As the data is read line-by-line, the output buffer controller generates the appropriate video timing signals (\texttt{vsync}, \texttt{hsync} and \texttt{vde}) which accompany the output pixel data \texttt{o\_data}. Because the vertical and horizontal synchronisation signals are entirely dependent on the video resolution, the module includes a set of user-configurable parameters. These parameters are used in Listing \ref{lst:o_buf_controller_vga_sync} to control the timing of the synchronisation pulses.

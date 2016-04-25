@@ -38,12 +38,12 @@ imshow(colour_img);
 \centering
 \begin{subfigure}{.5\textwidth}
   \centering
-  \includegraphics[width=.4\linewidth]{./img/ov7670_test_pattern_capture.png}
+  \includegraphics[width=1\textwidth]{./img/ov7670_test_pattern_capture.png}
   \caption{Original test pattern stored in memory.}
 \end{subfigure}%
 \begin{subfigure}{.5\textwidth}
   \centering
-  \includegraphics[width=.4\linewidth]{./img/ov7670_test_pattern_capture.png}
+  \includegraphics[width=1\textwidth]{./img/ov7670_test_pattern_capture.png}
   \caption{Test pattern captured by image processor.}
 \end{subfigure}
 \caption{Comparison of original test pattern and image captured and saved by the image processor.}
@@ -66,48 +66,46 @@ Figure \ref{fig:ov7670_spider} shows visible screen tearing issues. Significant 
 \centering
 \begin{subfigure}{.5\textwidth}
   \centering
-  \includegraphics[width=.4\linewidth]{./img/pentax_lego.jpg}
+  \includegraphics[width=1\textwidth]{./img/pentax_lego.jpg}
   \caption{Pentax K-r}
 \end{subfigure}%
 \begin{subfigure}{.5\textwidth}
   \centering
-  \includegraphics[width=.4\linewidth]{./img/ov7670_lego.jpg}
+  \includegraphics[width=1\textwidth]{./img/ov7670_lego.jpg}
   \caption{OV7670}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
   \centering
-  \includegraphics[width=.4\linewidth]{./img/pentax_lego_histogram.png}
+  \includegraphics[width=1\textwidth]{./img/pentax_lego_histogram.png}
   \caption{Pentax K-r histogram}
 \end{subfigure}%
 \begin{subfigure}{.5\textwidth}
   \centering
-  \includegraphics[width=.4\linewidth]{./img/ov7670_lego_histogram.png}
+  \includegraphics[width=1\textwidth]{./img/ov7670_lego_histogram.png}
   \caption{OV7670 histogram}
 \end{subfigure}
-\label{fig:lego_capture}
 \caption{Comparison test of yellow Lego brick.}
+\label{fig:lego_capture}
 \end{figure}
 
 \begin{figure}
 \centering
 \begin{subfigure}{.5\textwidth}
   \centering
-  \includegraphics[width=.4\linewidth]{./img/pentax_texture.jpg}
+  \includegraphics[width=1\linewidth]{./img/pentax_texture.jpg}
   \caption{Pentax K-r}
 \end{subfigure}%
 \begin{subfigure}{.5\textwidth}
   \centering
-  \includegraphics[width=.4\linewidth]{./img/ov7670_texture.jpg}
+  \includegraphics[width=1\linewidth]{./img/ov7670_texture.jpg}
   \caption{OV7670}
 \end{subfigure}
-\label{fig:texture_capture}
 \caption{Comparison test of repeated pattern.}
+\label{fig:texture_capture}
 \end{figure}
 
 \section{Soak testing}
 To test continuous reliable operation of the interface, a test pattern generator was written to output incrementing bits (such that pixel 1 = 0, pixel 2 = 1, pixel 3 = 2...) at the pixel clock rate. Listing \ref{lst:test_pattern_generator} shows the code which generates an incrementing pattern to pass on to the \gls{dvi} encoder. A matching pattern checker was written (shown in Listing \ref{lst:pattern_checker}) and placed after the decoder to ensure that the received bit pattern was the same as that transmitted. Upon detecting a bit error an interrupt would be triggered on the \gls{ps} and an error message logged over the UART serial port. Listing \ref{lst:pattern_error} shows the firmware for the interrupt handler which logs an error message if a bit error occurs.
-
-\marginpar{PRBS-7 would have been better - stresses transition minimisation}
 
 The test pattern generator was configured for 1080p output and connected to the HDMI output port on the sensor module board, which was connected via a HDMI cable to the HDMI input port on the image processor board, and fed into the \gls{dvi} decoder and then on to the pattern checker. The system was left running for twelve hours, with all serial port activity being logged. Apart from a single error when the two boards were initially powered on (caused by the two patterns needing to first synchronise), no other errors occurred during the twelve hour period. This is key in proving that the the design meets the requirements outlined in Table \ref{table:interface_specification} --- the interface is able to operate reliably for 12 hours at full HD resolution, transmitting at an aggregate rate of \SI{2.99}{\giga\bit\per\second}.
 

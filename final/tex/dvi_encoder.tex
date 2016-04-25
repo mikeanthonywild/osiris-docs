@@ -1,14 +1,12 @@
 \section{DVI encoder}
 
-\marginpar{Include formula for exact throughput, and pixel clocks used for OV7670}
-
-The \gls{dvi} encoder and decoder presented here are based heavily upon a reference design provided by Digilent's IP library for the Zybo development board. Rather than reinvent the wheel, this project opts to use these cores as a base and extend them for use with image sensors. All third-party code has been attributed, as per the BSD-license which the IP is released under. Custom additions have been marked.
+The \gls{dvi} encoder and decoder presented here are based heavily upon a reference design provided by Digilent's IP library for the Zybo development board. Rather than reinvent the wheel, this project opts to use these cores as a base and extend them for use with image sensors. All third-party code has been attributed, as per the BSD-license which the IP is released under.
 
 \subsection{\texttt{rgb2dvi} module overview}
 \begin{figure}
   \centering
   \includegraphics[width=1\textwidth]{./img/rgb2dvi.png}
-  \caption{Block diagram of the DVI encoder \cite{rgb2dvi}.}
+  \caption{Block diagram of the DVI encoder. Adapted from \cite{rgb2dvi}.}
   \label{fig:rgb2dvi}
 \end{figure}
 
@@ -64,7 +62,7 @@ The encoding algorithm can be split into three discrete pipeline stages:
 
 \begin{lstlisting}[caption={TMDS encoder transition minimisation stage.}, label={lst:encoder_stage_1}, language=VHDL]
 -- Pipeline stage 1, minimise transitions
-----------------------------------------------------------------------------------
+--------------------------------------------------------------------------
 Stage1: process(PixelClk)
 begin
     if Rising_Edge(PixelClk) then
@@ -77,9 +75,9 @@ begin
     end if;
 end process Stage1;
 
-----------------------------------------------------------------------------------
+--------------------------------------------------------------------------
 -- Choose one of the two encoding options based on n1d_1
-----------------------------------------------------------------------------------
+--------------------------------------------------------------------------
 q_m_xor_1(0) <= pDataOut_1(0);
 encode1: for i in 1 to 7 generate
     q_m_xor_1(i) <= q_m_xor_1(i-1) xor pDataOut_1(i);
@@ -101,9 +99,9 @@ n1q_m_1 <= sum_bits(q_m_1(7 downto 0));
 The first stage, in Listing \ref{lst:encoder_stage_1} aims to minimise the number of transitions in the data by XORing with previous inputs. After counting the ones and zeros in the input bits, the intermediate \texttt{q\_m} bits are set by XORing them with the current data bits. An additional 9\textsuperscript{th} intermediate bit is set to either \texttt{1} if the input data contains less than four ones, or \texttt{0} otherwise.
 
 \begin{lstlisting}[caption={TMDS encoder DC balancing stage.}, label={lst:encoder_stage_2}, language=VHDL]
-----------------------------------------------------------------------------------
+--------------------------------------------------------------------------
 -- Pipeline stage 2, balance DC
-----------------------------------------------------------------------------------
+--------------------------------------------------------------------------
 Stage2: process(PixelClk)
 begin
     if Rising_Edge(PixelClk) then
@@ -154,7 +152,7 @@ When configured as a cascaded 10:1 \gls{ddr} topology the OSERDESE2 primitive ha
 
 \begin{figure}
   \centering
-  \includegraphics[width=1\textwidth]{./img/10_1_serdes.png}
+  \includegraphics[width=0.5\textwidth]{./img/10_1_serdes.png}
   \caption{10:1 serialisation is achieved by chaining two OSERDES2 primitives in DDR mode \cite{xilinx:ug471}.}
   \label{fig:10_1_serdes}
 \end{figure}
@@ -174,7 +172,6 @@ Three clocks --- all of which are generated externally --- are required for the 
 The route between the serial clock and the OSERDESE2 primitives is without doubt the most critical part of the entire design as it limits the maximum throughput. To ensure that the tools have the best possible chance of meeting the throughput requirements the serial clock is constrained to be five times the pixel clock frequency, as in Listing \ref{lst:timing_constraints}
 
 \begin{lstlisting}[caption={Serial clock timing constraints}, label={lst:timing_constraints}, language=tcl]
-### Clock constraints ###
 create_generated_clock -source [get_ports PixelClk] -multiply_by 5 [get_ports SerialClk]
 \end{lstlisting}
 
